@@ -13,9 +13,14 @@ public class Postman implements AutoCloseable {
 
 	private Socket socket;
 
-	public Postman(Type letterType) {
-		if (letterType == null)
+	public Postman(Socket socket, Type letterType) {
+		if (socket == null)
+            throw new IllegalArgumentException("socket == null");
+        // TODO check more about the socket here
+        if (letterType == null)
 			throw new IllegalArgumentException("letterClass == null");
+
+        this.socket = socket;
 
 		try {
 
