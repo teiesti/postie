@@ -1,7 +1,6 @@
 package de.teiesti.postie;
 
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonWriter;
 import org.pmw.tinylog.Logger;
 
 import java.io.BufferedWriter;
@@ -12,7 +11,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 public class Outbox implements Runnable, AutoCloseable {
 
-	private JsonWriter out;
+	private BufferedWriter out;
 	private BlockingQueue<Object> outbox = new LinkedBlockingDeque<>();
 
 	private boolean close = false;
@@ -27,7 +26,7 @@ public class Outbox implements Runnable, AutoCloseable {
 		if (letterType == null)
 			throw new IllegalArgumentException("letterClass == null");
 
-		this.out = new JsonWriter(out);
+		this.out = out;
 		this.letterType = letterType;
 
 		// TODO ensure that only one thread is started for one instance
@@ -52,7 +51,9 @@ public class Outbox implements Runnable, AutoCloseable {
 		try {
 			while (!close) {
 				letter = outbox.take();
-				gson.toJson(letter, letterType, out);
+				// TODO may check weather letter is of type letterType
+				gson.toJson(letter, out);
+				out.newLine();
 				if (outbox.isEmpty()) out.flush();
 			}
 		} catch (InterruptedException | IOException e) {

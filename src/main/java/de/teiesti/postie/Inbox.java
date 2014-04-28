@@ -1,10 +1,10 @@
 package de.teiesti.postie;
 
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 import org.pmw.tinylog.Logger;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -12,7 +12,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 // TODO Inbox does not need to be closed?!
 public class Inbox implements Runnable {
 
-	private JsonReader in;
+	private BufferedReader in;
 	private BlockingQueue<Object> inbox = new LinkedBlockingDeque<>();
 
 	private Type letterType;
@@ -25,7 +25,7 @@ public class Inbox implements Runnable {
 		if (letterType == null)
 			throw new IllegalArgumentException("letterClass == null");
 
-		this.in = new JsonReader(in);
+		this.in = in;
 		this.letterType = letterType;
 
 		// TODO ensure that only one thread is started for one instance
@@ -44,15 +44,18 @@ public class Inbox implements Runnable {
 
 	@Override
 	public void run() {
-		Object letter;
-		while(true) {
-			letter = gson.fromJson(in, letterType);
-			try {
+		try {
+			String rawLetter = in.readLine();
+			Object letter;
+			while(rawLetter != null) {
+				letter = gson.fromJson(rawLetter, letterType);
 				inbox.put(letter);
-			} catch (InterruptedException e) {
-				Logger.error(e);
-				System.exit(1);
+				rawLetter = in.readLine();
 			}
+		} catch (InterruptedException | IOException e) {
+			Logger.error(e);
+			System.exit(1);
 		}
 	}
+
 }
