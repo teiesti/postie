@@ -5,7 +5,6 @@ import org.pmw.tinylog.Logger;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -16,18 +15,18 @@ public class Outbox implements Runnable, AutoCloseable {
 
 	private boolean close = false;
 
-	private Type letterType;
+	private Class<?> letterClass;
 
 	private Gson gson = new Gson();
 
-	public Outbox(BufferedWriter out, Type letterType) {
+	public Outbox(BufferedWriter out, Class<?> letterClass) {
 		if (out == null)
 			throw new IllegalArgumentException("out == null");
-		if (letterType == null)
+		if (letterClass == null)
 			throw new IllegalArgumentException("letterClass == null");
 
 		this.out = out;
-		this.letterType = letterType;
+		this.letterClass = letterClass;
 
 		// TODO ensure that only one thread is started for one instance
 		new Thread(this).start();
@@ -36,8 +35,8 @@ public class Outbox implements Runnable, AutoCloseable {
 	public void send(Object letter) {
 		if (letter == null)
 			throw new IllegalArgumentException("letter == null");
-		if (letter.getClass().isAssignableFrom(letterType.getClass()))
-			throw new ClassCastException("letter is not assignable to given letter type " + letterType);
+		if (!letter.getClass().isAssignableFrom(letterClass))
+			throw new ClassCastException("letter is not assignable to given letter class " + letterClass);
 		if (close)
 			throw new IllegalStateException("cannot send a letter because this is already closed");
 
@@ -72,7 +71,7 @@ public class Outbox implements Runnable, AutoCloseable {
 		Object letter;
 		while (!outbox.isEmpty()) {
 			letter = outbox.poll();
-			gson.toJson(letter, letterType, out);
+			gson.toJson(letter, letterClass, out);
 		}
 
 		try {
