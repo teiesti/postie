@@ -96,9 +96,15 @@ public class Postman implements AutoCloseable {
         return (Letter) inbox.receive();
 	}
 
+	/**
+	 * Returns weather this {@code Postman} has an object ("letter") to deliver using the {@link #receive()}-method. If
+	 * this method returns {@link true}, the {@link #receive()} does not block on the next call. Please be very
+	 * careful when using this method in a multi-threaded environment because it does only return the current state.
+	 *
+	 * @return weather this {@link Postman} has an object to deliver using {@link #receive()}
+	 */
 	public boolean hasLetter() {
-		// TODO
-		return false;
+		return inbox.hasLetter();
 	}
 
 	/**

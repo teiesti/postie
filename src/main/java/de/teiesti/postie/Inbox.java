@@ -41,6 +41,10 @@ public class Inbox implements Runnable {
 		return null;	// will never be executed but is required by Java
 	}
 
+	public boolean hasLetter() {
+		return !inbox.isEmpty();
+	}
+
 	@Override
 	public void run() {
 		try {
