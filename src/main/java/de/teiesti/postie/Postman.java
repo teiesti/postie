@@ -40,12 +40,18 @@ public class Postman implements AutoCloseable {
 		}
 	}
 
-	public void send(Object letter) {
+	public <Letter> void send(Letter letter) {
 		outbox.send(letter);
 	}
 
-	public Object receive() {
-		return inbox.receive();
+    /**
+     * TODO doc: Letter must be assignable from letterType
+     * @param <Letter>
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+	public <Letter> Letter receive() {
+        return (Letter) inbox.receive();
 	}
 
 	@Override
