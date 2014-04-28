@@ -78,6 +78,22 @@ public class PostmanTest {
 			assertThat((Integer) alice.receive(), is(i));
 	}
 
+	@Test(timeout = 500)
+	public void nullSendTest() {
+		try {
+			bob.send(null);
+			fail();
+		} catch (IllegalArgumentException e) {}
+	}
+
+	@Test(timeout = 500)
+	public void wrongTypeSendTest() {
+		try {
+			bob.send(1.0F);
+			fail();
+		} catch (ClassCastException e) {}
+	}
+
     @AfterClass
     public static void cleanup() throws Exception {
         alice.close();
