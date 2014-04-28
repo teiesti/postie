@@ -12,12 +12,13 @@ import static org.hamcrest.CoreMatchers.*;
 
 public class PostmanTest {
 
-    private Postman alice;
-    private Postman bob;
+    private static Postman alice;
+    private static Postman bob;
 
-    @Before
-    public void setup() {
+    @BeforeClass
+    public static void setup() {
         Thread createAlice = new Thread() {
+           	@Override
             public void run() {
                 try {
                     Socket aliceSocket = new ServerSocket(2804).accept();
@@ -46,13 +47,13 @@ public class PostmanTest {
         }
     }
 
-    @Test(timeout=5000)
+    @Test(timeout = 500)
     public void simplexSendTest() {
         bob.send(42);
         assertThat((Integer) alice.receive(), is(42));
     }
 
-    @Test(timeout=5000)
+    @Test(timeout=500)
     public void halfDuplexSendTest() {
         bob.send(1234);
         assertThat((Integer) alice.receive(), is(1234));
@@ -60,16 +61,25 @@ public class PostmanTest {
         assertThat((Integer) bob.receive(), is(4321));
     }
 
-    @Test(timeout=5000)
+    @Test(timeout = 500)
     public void fullDuplexSendTest() {
         bob.send(1);
         alice.send(2);
         assertThat((Integer) bob.receive(), is(2));
-        assertThat((Integer) alice.receive(), is(2));
+        assertThat((Integer) alice.receive(), is(1));
     }
 
-    @After
-    public void cleanup() throws Exception {
+	@Test(timeout = 500)
+	public void multiSendTest() {
+		for (int i = 0 ; i < 1024; i++)
+			bob.send(i);
+
+		for (int i = 0; i < 1024; i++)
+			assertThat((Integer) alice.receive(), is(i));
+	}
+
+    @AfterClass
+    public static void cleanup() throws Exception {
         alice.close();
         bob.close();
     }
