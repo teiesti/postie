@@ -6,6 +6,7 @@ import org.pmw.tinylog.Logger;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -16,18 +17,18 @@ public class Outbox implements Runnable, AutoCloseable {
 
 	private boolean close = false;
 
-	private Class<?> letterClass;
+	private Type letterType;
 
 	private Gson gson = new Gson();
 
-	public Outbox(BufferedWriter out, Class<?> letterClass) {
+	public Outbox(BufferedWriter out, Type letterType) {
 		if (out == null)
 			throw new IllegalArgumentException("out == null");
-		if (letterClass == null)
+		if (letterType == null)
 			throw new IllegalArgumentException("letterClass == null");
 
 		this.out = new JsonWriter(out);
-		this.letterClass = letterClass;
+		this.letterType = letterType;
 
 		// TODO ensure that only one thread is started for one instance
 		new Thread(this).start();
@@ -51,7 +52,7 @@ public class Outbox implements Runnable, AutoCloseable {
 		try {
 			while (!close) {
 				letter = outbox.take();
-				gson.toJson(letter, letterClass, out);
+				gson.toJson(letter, letterType, out);
 				if (outbox.isEmpty()) out.flush();
 			}
 		} catch (InterruptedException | IOException e) {
@@ -67,7 +68,7 @@ public class Outbox implements Runnable, AutoCloseable {
 		Object letter;
 		while (!outbox.isEmpty()) {
 			letter = outbox.poll();
-			gson.toJson(letter, letterClass, out);
+			gson.toJson(letter, letterType, out);
 		}
 
 		try {

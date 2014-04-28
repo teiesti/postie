@@ -3,6 +3,7 @@ package de.teiesti.postie;
 import org.pmw.tinylog.Logger;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.net.Socket;
 
 public class Postman implements AutoCloseable {
@@ -12,8 +13,8 @@ public class Postman implements AutoCloseable {
 
 	private Socket socket;
 
-	public Postman(Class<?> letterClass) {
-		if (letterClass == null)
+	public Postman(Type letterType) {
+		if (letterType == null)
 			throw new IllegalArgumentException("letterClass == null");
 
 		try {
@@ -21,12 +22,12 @@ public class Postman implements AutoCloseable {
 			int inBuffer = socket.getReceiveBufferSize();
 			InputStream inStream = socket.getInputStream();
 			BufferedReader in = new BufferedReader(new InputStreamReader(inStream), inBuffer);
-			inbox = new Inbox(in, letterClass);
+			inbox = new Inbox(in, letterType);
 
 			int outBuffer = socket.getSendBufferSize();
 			OutputStream outStream = socket.getOutputStream();
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(outStream), outBuffer);
-			outbox = new Outbox(out, letterClass);
+			outbox = new Outbox(out, letterType);
 
 		} catch (IOException e) {
 			Logger.error(e);

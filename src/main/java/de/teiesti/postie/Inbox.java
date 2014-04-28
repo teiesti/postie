@@ -5,6 +5,7 @@ import com.google.gson.stream.JsonReader;
 import org.pmw.tinylog.Logger;
 
 import java.io.BufferedReader;
+import java.lang.reflect.Type;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -14,18 +15,18 @@ public class Inbox implements Runnable {
 	private JsonReader in;
 	private BlockingQueue<Object> inbox = new LinkedBlockingDeque<>();
 
-	private Class<?> letterClass;
+	private Type letterType;
 
 	private Gson gson = new Gson();
 
-	public Inbox(BufferedReader in, Class<?> letterClass) {
+	public Inbox(BufferedReader in, Type letterType) {
 		if (in == null)
 			throw new IllegalArgumentException("in == null");
-		if (letterClass == null)
+		if (letterType == null)
 			throw new IllegalArgumentException("letterClass == null");
 
 		this.in = new JsonReader(in);
-		this.letterClass = letterClass;
+		this.letterType = letterType;
 
 		// TODO ensure that only one thread is started for one instance
 		new Thread(this).start();
@@ -45,7 +46,7 @@ public class Inbox implements Runnable {
 	public void run() {
 		Object letter;
 		while(true) {
-			letter = gson.fromJson(in, letterClass);
+			letter = gson.fromJson(in, letterType);
 			try {
 				inbox.put(letter);
 			} catch (InterruptedException e) {
