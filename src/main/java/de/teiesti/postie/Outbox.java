@@ -34,6 +34,10 @@ public class Outbox implements Runnable, AutoCloseable {
 	}
 
 	public void send(Object letter) {
+		if (letter == null)
+			throw new IllegalArgumentException("letter == null");
+		if (letter.getClass().isAssignableFrom(letterType.getClass()))
+			throw new ClassCastException("letter is not assignable to given letter type " + letterType);
 		if (close)
 			throw new IllegalStateException("cannot send a letter because this is already closed");
 
@@ -51,7 +55,6 @@ public class Outbox implements Runnable, AutoCloseable {
 		try {
 			while (!close) {
 				letter = outbox.take();
-				// TODO may check weather letter is of type letterType
 				gson.toJson(letter, out);
 				out.newLine();
 				if (outbox.isEmpty()) out.flush();
