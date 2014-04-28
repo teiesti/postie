@@ -94,6 +94,18 @@ public class PostmanTest {
 		} catch (ClassCastException e) {}
 	}
 
+	@Test(timeout = 500)
+	public void hasLetterTest() {
+		assertThat(alice.hasLetter(), is(false));
+
+		bob.send(42);
+		while(!alice.hasLetter());	// spinlock that waits until the letter has passed the concurrent threads
+		assertThat(alice.hasLetter(), is(true));
+
+		alice.receive();
+		assertThat(alice.hasLetter(), is(false));
+	}
+
     @AfterClass
     public static void cleanup() throws Exception {
         alice.close();
