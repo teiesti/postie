@@ -7,14 +7,17 @@ import java.io.*;
 import java.net.Socket;
 
 /**
- * A {@code Postman} delivers messages ("letters") through a given {@link Socket}. A message - which can be any object
- * that is assignable to the {@link Class} specified in the constructor - will be encodes in the JSON format and
- * separated by a single new line (either CR, LF or CRLF depending on the system).<br />
- * <br />
- * To submit a message, use the {@link #send(Object)}-method. To receive one, use the {@link #receive()}-method.<br />
- * <br />
- * A {@code Postman} starts one thread to handle the incoming messages (see {@link Inbox}) and one thread to handle the
- * outgoing messages (see {@link Outbox}). Above, it is fully thread-safe.
+ * A {@code Postman} delivers messages ("letters") through a given {@link Socket}. The message will be encodes in the
+ * JSON format using the GSON library. Therefore a letter can be any object that GSON can handle. Different messages
+ * will be separated by a single new line (either CR, LF or CRLF depending on the system).
+ * <br /><br />
+ * To submit a message, use the {@link #send(Object)}-method. To receive one, use the {@link #receive(Class)}-method.
+ * <br /><br />
+ * The {@link Socket} given to a {@code Postman} should only be accessed by {@code Postman} it was given to. No
+ * warranty about what happens if someone tries access it from outside.
+ * <br /><br />
+ * A {@code Postman} starts two threads: one to deliver the incoming messages and one to receive the outgoing
+ * messages. Above, all methods are fully thread-safe.
  */
 public class Postman implements AutoCloseable {
 
@@ -27,19 +30,19 @@ public class Postman implements AutoCloseable {
 	/** the socket which is administrated by this {@code Postman} */
 	private Socket socket;
 
+	/** GSON instance that encodes the messages */
 	private Gson gson = new Gson();
 
 	/**
-	 * Creates a new {@code Postman} which delivers objects ("letter") of a given {@link Class} through a given {@link
-	 * Socket}. The type is used to instantiate incoming objects.
+	 * Creates a new {@code Postman} which delivers objects ("letter") through a given {@link Socket}. Be careful:
+	 * The {@code Socket} given to this {@code Postman} should not be accessed from outside.
 	 *
 	 * @param socket the {@link Socket} this {@code Postman} delivers through
-	 * @param letterClass the {@link Class} of the letters this {@code Postman} delivers
 	 */
 	public Postman(Socket socket) {
 		if (socket == null)
             throw new IllegalArgumentException("socket == null");
-        // TODO check more about the socket here
+        // TODO check more about the socket state here
 
         this.socket = socket;
 
@@ -62,17 +65,16 @@ public class Postman implements AutoCloseable {
 	}
 
 	/**
-	 * Sends a given object ("letter") through the socket. Therefore the object is serialized to the JSON format. This
-	 * method does not block until the sending has completed: It just takes the object; the serialization and delivery
-	 * is organized by another concurrent thread. Therefore, it is not allowed to change the object after submitting
-	 * it to this method. This method is thread-safe, which means that it can be accessed from different threads
-	 * concurrently.
+	 * Sends a given object ("letter") through the socket. Therefore the object is serialized to the JSON format
+	 * using the GSON library. Afterwards, the serialized copy is stored for sending, which a different thread handles
+	 * concurrently. Because only the copy is stored, the object passed to this method can be modified after this
+	 * method returns. This method can handle different "letter" types as long as GSON can encode it. But please note
+	 * that the receiver must know the type to successfully decode the received JSON string. This method is thread-safe,
+	 * which means that it can be accessed from different threads concurrently.
 	 *
 	 * @param letter the object to send though the socket
-	 * @param <Letter> the {@link Class} of the "letter" which must be assignable to the {@link Class} specified in the
-	 *                   constructor
+	 * @param <Letter> the {@link Class} of the "letter"
 	 * @throws IllegalArgumentException if {@code letter} is {@code null}
-	 * @throws ClassCastException if {@code letter} is not assignable to the {@link Class} specified in the constructor
 	 * @throws IllegalStateException if this {@code Postman} is already closed
 	 */
 	public <Letter> void send(Letter letter) {
@@ -84,29 +86,33 @@ public class Postman implements AutoCloseable {
 	}
 
     /**
-     * Returns an object ("letter") received from the socket. The object was accepted and deserialized from the JSON
-	 * format to the {@link Class} that was specified in the constructor by another concurrent thread. This method
-	 * returns objects in the order they have arrived at the socket. This method is thread-safe, which means that it can
-	 * be accessed from different threads concurrently. This method is generic and casts the received object to the type
-	 * that is needed by the caller: This means that it comes to a {@link ClassCastException} if the requested type
-	 * is not assignable by the {@link Class} specified in the constructor. If this {@code Postman} has not letter at
-	 * the moment, this methods blocks until a letter arrives. Use {@link #hasLetter()} to check wheather this method
-	 * can provide a method instantly.
+     * Returns an object ("letter") which was received from the socket as a JSON string. Before returning,
+	 * this method decodes the string using the GSON library. Because the JSON string does not provide the original
+	 * type, the user must declare it via a parameter. For additional information about how this method decodes a
+	 * single message review {@link Gson#fromJson(String, Class)}. This method returns objects in the order they have
+	 * arrived at the socket. If this {@code Postman} has not "letter" at the moment, this methods blocks until a letter
+	 * arrives. Use {@link #hasLetter()} to check weather this method can provide a method instantly. This method is
+	 * thread-safe, which means that it can be accessed from different threads concurrently.
 	 *
-     * @param <Letter> the type of the received object
-     * @return an object
+	 * @param letterClass the type of the received "letter" which must be assignable to the generic method type
+	 * @param <Letter> the type of the received "letter"
+     * @return the received message
      */
 	public <Letter> Letter receive(Class<? extends Letter> letterClass) {
+		if (letterClass == null)
+			throw new IllegalArgumentException("letterClass == null");
+
         String rawLetter = inbox.receive();
 		return gson.fromJson(rawLetter, letterClass);
 	}
 
 	/**
-	 * Returns weather this {@code Postman} has an object ("letter") to deliver using the {@link #receive()}-method. If
-	 * this method returns {@link true}, the {@link #receive()} does not block on the next call. Please be very
-	 * careful when using this method in a multi-threaded environment because it does only return the current state.
+	 * Returns weather this {@code Postman} has an object ("letter") to deliver using the
+	 * {@link #receive(Class)}-method. If this method returns {@link true}, the {@link #receive(Class)} does not block
+	 * on the next call. Please be very careful when using this method in a multi-threaded environment because it
+	 * does only return the current state: Another thread may steal "your" object.
 	 *
-	 * @return weather this {@link Postman} has an object to deliver using {@link #receive()}
+	 * @return weather this {@link Postman} has an object to deliver using {@link #receive(Class)}
 	 */
 	public boolean hasLetter() {
 		return inbox.hasLetter();
