@@ -1,5 +1,6 @@
 package de.teiesti.postie;
 
+import com.google.gson.Gson;
 import org.pmw.tinylog.Logger;
 
 import java.io.*;
@@ -26,6 +27,8 @@ public class Postman implements AutoCloseable {
 	/** the socket which is administrated by this {@code Postman} */
 	private Socket socket;
 
+	private Gson gson = new Gson();
+
 	/**
 	 * Creates a new {@code Postman} which delivers objects ("letter") of a given {@link Class} through a given {@link
 	 * Socket}. The type is used to instantiate incoming objects.
@@ -33,12 +36,10 @@ public class Postman implements AutoCloseable {
 	 * @param socket the {@link Socket} this {@code Postman} delivers through
 	 * @param letterClass the {@link Class} of the letters this {@code Postman} delivers
 	 */
-	public Postman(Socket socket, Class<?> letterClass) {
+	public Postman(Socket socket) {
 		if (socket == null)
             throw new IllegalArgumentException("socket == null");
         // TODO check more about the socket here
-        if (letterClass == null)
-			throw new IllegalArgumentException("letterClass == null");
 
         this.socket = socket;
 
@@ -47,12 +48,12 @@ public class Postman implements AutoCloseable {
 			int inBuffer = socket.getReceiveBufferSize();
 			InputStream inStream = socket.getInputStream();
 			BufferedReader in = new BufferedReader(new InputStreamReader(inStream), inBuffer);
-			inbox = new Inbox(in, letterClass);
+			inbox = new Inbox(in);
 
 			int outBuffer = socket.getSendBufferSize();
 			OutputStream outStream = socket.getOutputStream();
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(outStream), outBuffer);
-			outbox = new Outbox(out, letterClass);
+			outbox = new Outbox(out);
 
 		} catch (IOException e) {
 			Logger.error(e);
@@ -75,7 +76,11 @@ public class Postman implements AutoCloseable {
 	 * @throws IllegalStateException if this {@code Postman} is already closed
 	 */
 	public <Letter> void send(Letter letter) {
-		outbox.send(letter);
+		if (letter == null)
+			throw new IllegalArgumentException("letter == null");
+
+		String rawLetter = gson.toJson(letter);
+		outbox.send(rawLetter);
 	}
 
     /**
@@ -91,9 +96,9 @@ public class Postman implements AutoCloseable {
      * @param <Letter> the type of the received object
      * @return an object
      */
-    @SuppressWarnings("unchecked")
-	public <Letter> Letter receive() {
-        return (Letter) inbox.receive();
+	public <Letter> Letter receive(Class<? extends Letter> letterClass) {
+        String rawLetter = inbox.receive();
+		return gson.fromJson(rawLetter, letterClass);
 	}
 
 	/**

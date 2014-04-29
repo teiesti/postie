@@ -12,26 +12,19 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class Inbox implements Runnable {
 
 	private BufferedReader in;
-	private BlockingQueue<Object> inbox = new LinkedBlockingDeque<>();
+	private BlockingQueue<String> inbox = new LinkedBlockingDeque<>();
 
-	private Class<?> letterClass;
-
-	private Gson gson = new Gson();
-
-	public Inbox(BufferedReader in, Class<?> letterClass) {
+	public Inbox(BufferedReader in) {
 		if (in == null)
 			throw new IllegalArgumentException("in == null");
-		if (letterClass == null)
-			throw new IllegalArgumentException("letterClass == null");
 
 		this.in = in;
-		this.letterClass = letterClass;
 
 		// TODO ensure that only one thread is started for one instance
 		new Thread(this).start();
 	}
 
-	public Object receive() {
+	public String receive() {
 		try {
 			return inbox.take();
 		} catch (InterruptedException e) {
@@ -48,12 +41,10 @@ public class Inbox implements Runnable {
 	@Override
 	public void run() {
 		try {
-			String rawLetter = in.readLine();
-			Object letter;
-			while(rawLetter != null) {
-				letter = gson.fromJson(rawLetter, letterClass);
+			String letter = in.readLine();
+			while(letter != null) {
 				inbox.put(letter);
-				rawLetter = in.readLine();
+				letter = in.readLine();
 			}
 		} catch (InterruptedException | IOException e) {
 			Logger.error(e);

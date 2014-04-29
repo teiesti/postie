@@ -11,32 +11,23 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class Outbox implements Runnable, AutoCloseable {
 
 	private BufferedWriter out;
-	private BlockingQueue<Object> outbox = new LinkedBlockingDeque<>();
+	private BlockingQueue<String> outbox = new LinkedBlockingDeque<>();
 
 	private boolean close = false;
 
-	private Class<?> letterClass;
-
-	private Gson gson = new Gson();
-
-	public Outbox(BufferedWriter out, Class<?> letterClass) {
+	public Outbox(BufferedWriter out) {
 		if (out == null)
 			throw new IllegalArgumentException("out == null");
-		if (letterClass == null)
-			throw new IllegalArgumentException("letterClass == null");
 
 		this.out = out;
-		this.letterClass = letterClass;
 
 		// TODO ensure that only one thread is started for one instance
 		new Thread(this).start();
 	}
 
-	public void send(Object letter) {
+	public void send(String letter) {
 		if (letter == null)
 			throw new IllegalArgumentException("letter == null");
-		if (!letter.getClass().isAssignableFrom(letterClass))
-			throw new ClassCastException("letter is not assignable to given letter class " + letterClass);
 		if (close)
 			throw new IllegalStateException("cannot send a letter because this is already closed");
 
@@ -50,11 +41,11 @@ public class Outbox implements Runnable, AutoCloseable {
 
 	@Override
 	public void run() {
-		Object letter;
+		String letter;
 		try {
 			while (!close) {
 				letter = outbox.take();
-				gson.toJson(letter, out);
+				out.write(letter);
 				out.newLine();
 				if (outbox.isEmpty()) out.flush();
 			}
@@ -66,15 +57,15 @@ public class Outbox implements Runnable, AutoCloseable {
 
 	@Override
 	public void close() {
-		close = true;
-
-		Object letter;
-		while (!outbox.isEmpty()) {
-			letter = outbox.poll();
-			gson.toJson(letter, letterClass, out);
-		}
-
 		try {
+			close = true;
+
+			String letter = outbox.poll();
+			while (letter != null) {
+				out.write(letter);
+				out.newLine();
+			}
+
 			// don't close out here, because it belongs to a socket which is handled from elsewhere
 			out.flush();
 		} catch (IOException e) {

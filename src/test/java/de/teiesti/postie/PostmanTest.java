@@ -22,7 +22,7 @@ public class PostmanTest {
             public void run() {
                 try {
                     Socket aliceSocket = new ServerSocket(2804).accept();
-                    alice = new Postman(aliceSocket, Integer.class);
+                    alice = new Postman(aliceSocket);
                 } catch (IOException e) {
                     e.printStackTrace();
                     fail("could not create alice");
@@ -34,7 +34,7 @@ public class PostmanTest {
 
         try {
             Socket bobSocket = new Socket(InetAddress.getLocalHost(), 2804);
-            bob = new Postman(bobSocket, Integer.class);
+            bob = new Postman(bobSocket);
         } catch (IOException e) {
             e.printStackTrace();
             fail("could not create bob");
@@ -50,23 +50,23 @@ public class PostmanTest {
     @Test(timeout = 500)
     public void simplexSendTest() {
         bob.send(42);
-        assertThat((Integer) alice.receive(), is(42));
+        assertThat((Integer) alice.receive(Integer.class), is(42));
     }
 
     @Test(timeout=500)
     public void halfDuplexSendTest() {
         bob.send(1234);
-        assertThat((Integer) alice.receive(), is(1234));
+        assertThat((Integer) alice.receive(Integer.class), is(1234));
         alice.send(4321);
-        assertThat((Integer) bob.receive(), is(4321));
+        assertThat((Integer) bob.receive(Integer.class), is(4321));
     }
 
     @Test(timeout = 500)
     public void fullDuplexSendTest() {
         bob.send(1);
         alice.send(2);
-        assertThat((Integer) bob.receive(), is(2));
-        assertThat((Integer) alice.receive(), is(1));
+        assertThat((Integer) bob.receive(Integer.class), is(2));
+        assertThat((Integer) alice.receive(Integer.class), is(1));
     }
 
 	@Test(timeout = 500)
@@ -75,7 +75,7 @@ public class PostmanTest {
 			bob.send(i);
 
 		for (int i = 0; i < 1024; i++)
-			assertThat((Integer) alice.receive(), is(i));
+			assertThat((Integer) alice.receive(Integer.class), is(i));
 	}
 
 	@Test(timeout = 500)
@@ -87,14 +87,6 @@ public class PostmanTest {
 	}
 
 	@Test(timeout = 500)
-	public void wrongTypeSendTest() {
-		try {
-			bob.send(1.0F);
-			fail();
-		} catch (ClassCastException e) {}
-	}
-
-	@Test(timeout = 500)
 	public void hasLetterTest() {
 		assertThat(alice.hasLetter(), is(false));
 
@@ -102,7 +94,7 @@ public class PostmanTest {
 		while(!alice.hasLetter());	// spinlock that waits until the letter has passed the concurrent threads
 		assertThat(alice.hasLetter(), is(true));
 
-		alice.receive();
+		alice.receive(Integer.class);
 		assertThat(alice.hasLetter(), is(false));
 	}
 
