@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
-public class Outbox implements Runnable, AutoCloseable {
+class Outbox implements Runnable, AutoCloseable {
 
 	private BufferedWriter out;
 	private BlockingQueue<String> outbox = new LinkedBlockingDeque<>();

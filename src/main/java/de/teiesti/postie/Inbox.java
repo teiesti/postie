@@ -9,7 +9,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 // TODO Inbox does not need to be closed?!
-public class Inbox implements Runnable {
+class Inbox implements Runnable {
 
 	private BufferedReader in;
 	private BlockingQueue<String> inbox = new LinkedBlockingDeque<>();
