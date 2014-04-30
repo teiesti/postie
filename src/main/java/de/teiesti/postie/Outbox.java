@@ -72,23 +72,25 @@ class Outbox implements Runnable, AutoCloseable {
 
 	@Override
 	public void close() {
-		try {
-			// close the worker thread
-			close = true;
-			worker.join();
+		if (!close) {
+			try {
+				// close the worker thread
+				close = true;
+				worker.join();
 
-			// clean things up
-			String letter = outbox.poll();
-			while (letter != null) {
-				out.write(letter);
-				out.newLine();
+				// clean things up
+				String letter = outbox.poll();
+				while (letter != null) {
+					out.write(letter);
+					out.newLine();
+				}
+
+				// don't close out here, because it belongs to a socket which is handled from elsewhere
+				out.flush();
+			} catch (IOException | InterruptedException e) {
+				Logger.error(e);
+				System.exit(1);
 			}
-
-			// don't close out here, because it belongs to a socket which is handled from elsewhere
-			out.flush();
-		} catch (IOException | InterruptedException e) {
-			Logger.error(e);
-			System.exit(1);
 		}
 	}
 
