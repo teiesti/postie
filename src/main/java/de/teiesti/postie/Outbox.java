@@ -28,8 +28,17 @@ class Outbox implements Runnable, AutoCloseable {
 	/** a flag that indicated weather this {@code Inbox} should be closed*/
 	private boolean close = false;
 
+	/** the thread working this {@code Outbox} to transfer messages*/
 	private Thread worker;
 
+	/**
+	 * Create a new {@code Outbox} that writes messages ("letters") to a given {@link BufferedWriter}. Calling this
+	 * constructor starts a single thread which handles the outgoing messages.
+	 *
+	 * @param out the sink of the messages
+	 *
+	 * @throws IllegalArgumentException if {@code out} is {@code null}
+	 */
 	public Outbox(BufferedWriter out) {
 		if (out == null)
 			throw new IllegalArgumentException("out == null");
@@ -40,11 +49,20 @@ class Outbox implements Runnable, AutoCloseable {
 		worker.start();
 	}
 
+	/**
+	 * Accepts "letters" encoded as strings for delivery. The transfer will be managed by a concurrent thread.
+	 *
+	 * @param letter the message to send
+	 *
+	 * @throws IllegalArgumentException if {@code letter} is {@code null}
+	 * @throws IllegalStateException if this {@code Outbox} was already closed
+	 *
+	 */
 	public void send(String letter) {
 		if (letter == null)
 			throw new IllegalArgumentException("letter == null");
 		if (close)
-			throw new IllegalStateException("cannot send a letter because this is already closed");
+			throw new IllegalStateException("cannot send a letter because this outbox is already closed");
 
 		try {
 			outbox.put(letter);
@@ -54,6 +72,10 @@ class Outbox implements Runnable, AutoCloseable {
 		}
 	}
 
+	/**
+	 * Sends any pending message in a loop. This method - as well as the {@link Thread#start()} - should not be
+	 * called from outside this class.
+	 */
 	@Override
 	public void run() {
 		String letter;
@@ -70,13 +92,17 @@ class Outbox implements Runnable, AutoCloseable {
 		}
 	}
 
+	/**
+	 * Closes this {@code Outbox}. In detail, this method stops the worker thread and transfers any "letter" that was
+	 * that was not send yet.
+	 */
 	@Override
 	public void close() {
 		if (!close) {
 			try {
 				// close the worker thread
 				close = true;
-				worker.join();
+				worker.join();	// avoids a concurrent modification of out
 
 				// clean things up
 				String letter = outbox.poll();
