@@ -9,8 +9,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * An {@code Inbox} is the part of a {@link Mailbox} which receives messages ("letters"). Any message is stored
- * until a user fetches it with the {@link Mailbox#receive(Class)}-method. This class should only be accessed from
- * the associated {@link Mailbox}.<br />
+ * until a user fetches it with the {@link #receive()}-method. This class should only be accessed from the associated
+ * {@link Mailbox}.<br />
  * <br />
  * Warning: Do not start a {@link Thread} for a {@code Inbox}. These things are completely handled from inside the
  * class.<br />
