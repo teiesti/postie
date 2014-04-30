@@ -9,13 +9,13 @@ import java.net.Socket;
 /**
  * A {@code Mailbox} delivers messages ("letters") through a given {@link Socket}. The message will be encodes in the
  * JSON format using the GSON library. Therefore a letter can be any object that GSON can handle. Different messages
- * will be separated by a single new line (either CR, LF or CRLF depending on the system).
- * <br /><br />
+ * will be separated by a single new line (either CR, LF or CRLF depending on the system).<br>
+ * <br>
  * To submit a message, use the {@link #send(Object)}-method. To receive one, use the {@link #receive(Class)}-method.
- * <br /><br />
+ * <br><br>
  * The {@link Socket} given to a {@code Mailbox} should only be accessed by {@code Mailbox} it was given to. No
  * warranty about what happens if someone tries access it from outside.
- * <br /><br />
+ * <br><br>
  * A {@code Mailbox} starts two threads: one to deliver the incoming messages and one to receive the outgoing
  * messages. Above, all methods are fully thread-safe.
  */
