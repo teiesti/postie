@@ -28,13 +28,16 @@ class Outbox implements Runnable, AutoCloseable {
 	/** a flag that indicated weather this {@code Inbox} should be closed*/
 	private boolean close = false;
 
+	private Thread worker;
+
 	public Outbox(BufferedWriter out) {
 		if (out == null)
 			throw new IllegalArgumentException("out == null");
 
 		this.out = out;
+		this.worker = new Thread(this);
 
-		new Thread(this).start();
+		worker.start();
 	}
 
 	public void send(String letter) {
@@ -70,8 +73,11 @@ class Outbox implements Runnable, AutoCloseable {
 	@Override
 	public void close() {
 		try {
+			// close the worker thread
 			close = true;
+			worker.join();
 
+			// clean things up
 			String letter = outbox.poll();
 			while (letter != null) {
 				out.write(letter);
@@ -80,7 +86,7 @@ class Outbox implements Runnable, AutoCloseable {
 
 			// don't close out here, because it belongs to a socket which is handled from elsewhere
 			out.flush();
-		} catch (IOException e) {
+		} catch (IOException | InterruptedException e) {
 			Logger.error(e);
 			System.exit(1);
 		}
