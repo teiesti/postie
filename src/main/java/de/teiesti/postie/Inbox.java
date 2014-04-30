@@ -1,6 +1,5 @@
 package de.teiesti.postie;
 
-import com.google.gson.Gson;
 import org.pmw.tinylog.Logger;
 
 import java.io.BufferedReader;
@@ -8,7 +7,8 @@ import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
-// TODO Inbox does not need to be closed?!
+// TODO doc: Inbox does not need to be closed!
+// TODO doc: dont start a second thread for it
 class Inbox implements Runnable {
 
 	private BufferedReader in;
@@ -20,7 +20,6 @@ class Inbox implements Runnable {
 
 		this.in = in;
 
-		// TODO ensure that only one thread is started for one instance
 		new Thread(this).start();
 	}
 

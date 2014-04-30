@@ -1,6 +1,5 @@
 package de.teiesti.postie;
 
-import com.google.gson.Gson;
 import org.pmw.tinylog.Logger;
 
 import java.io.BufferedWriter;
@@ -8,6 +7,7 @@ import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
+// TODO doc: dont start a second thread for it
 class Outbox implements Runnable, AutoCloseable {
 
 	private BufferedWriter out;
@@ -21,7 +21,6 @@ class Outbox implements Runnable, AutoCloseable {
 
 		this.out = out;
 
-		// TODO ensure that only one thread is started for one instance
 		new Thread(this).start();
 	}
 
