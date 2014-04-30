@@ -10,10 +10,10 @@ import java.net.Socket;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
-public class PostmanTest {
+public class MailboxTest {
 
-    private static Postman alice;
-    private static Postman bob;
+    private static Mailbox alice;
+    private static Mailbox bob;
 
     @BeforeClass
     public static void setup() {
@@ -22,7 +22,7 @@ public class PostmanTest {
             public void run() {
                 try {
                     Socket aliceSocket = new ServerSocket(2804).accept();
-                    alice = new Postman(aliceSocket);
+                    alice = new Mailbox(aliceSocket);
                 } catch (IOException e) {
                     e.printStackTrace();
                     fail("could not create alice");
@@ -34,7 +34,7 @@ public class PostmanTest {
 
         try {
             Socket bobSocket = new Socket(InetAddress.getLocalHost(), 2804);
-            bob = new Postman(bobSocket);
+            bob = new Mailbox(bobSocket);
         } catch (IOException e) {
             e.printStackTrace();
             fail("could not create bob");
