@@ -74,6 +74,7 @@ public class Mailbox implements AutoCloseable {
 	 *
 	 * @param letter the object to send though the socket
 	 * @param <Letter> the {@link Class} of the "letter"
+	 *
 	 * @throws IllegalArgumentException if {@code letter} is {@code null}
 	 * @throws IllegalStateException if this {@code Mailbox} is already closed
 	 */
@@ -96,6 +97,7 @@ public class Mailbox implements AutoCloseable {
 	 *
 	 * @param letterClass the type of the received "letter" which must be assignable to the generic method type
 	 * @param <Letter> the type of the received "letter"
+	 *
      * @return the received message
      */
 	public <Letter> Letter receive(Class<? extends Letter> letterClass) {

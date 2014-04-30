@@ -30,6 +30,8 @@ class Inbox implements Runnable {
 	 * constructor starts a single thread which handles the incoming messages.
 	 *
 	 * @param in the source of the messages
+	 *
+	 * @throws IllegalArgumentException if {@code in} is {@code null}
 	 */
 	public Inbox(BufferedReader in) {
 		if (in == null)
@@ -68,7 +70,7 @@ class Inbox implements Runnable {
 	}
 
 	/**
-	 * Receives any incoming message in a loop. The method - as well as the {@link Thread#start()} should not be
+	 * Receives any incoming message in a loop. This method - as well as the {@link Thread#start()} - should not be
 	 * called from outside this class.
 	 */
 	@Override
