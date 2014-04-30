@@ -25,9 +25,6 @@ class Outbox implements Runnable, AutoCloseable {
 	/** a queue storing messages that have not been transferred yet */
 	private BlockingQueue<String> outbox = new LinkedBlockingDeque<>();
 
-	/** a flag that indicated weather this {@code Inbox} should be closed*/
-	private boolean close = false;
-
 	/** the thread working this {@code Outbox} to transfer messages*/
 	private Thread worker;
 
@@ -61,7 +58,7 @@ class Outbox implements Runnable, AutoCloseable {
 	public void send(String letter) {
 		if (letter == null)
 			throw new IllegalArgumentException("letter == null");
-		if (close)
+		if (worker.isInterrupted())
 			throw new IllegalStateException("cannot send a letter because this outbox is already closed");
 
 		try {
@@ -80,13 +77,16 @@ class Outbox implements Runnable, AutoCloseable {
 	public void run() {
 		String letter;
 		try {
-			while (!close) {
+			while (!worker.isInterrupted()) {
 				letter = outbox.take();
 				out.write(letter);
 				out.newLine();
 				if (outbox.isEmpty()) out.flush();
 			}
-		} catch (InterruptedException | IOException e) {
+		} catch (InterruptedException e) {
+			// reset interrupt status and terminate
+			worker.interrupt();
+		} catch (IOException e) {
 			Logger.error(e);
 			System.exit(1);
 		}
@@ -98,11 +98,10 @@ class Outbox implements Runnable, AutoCloseable {
 	 */
 	@Override
 	public void close() {
-		if (!close) {
+		if (!worker.isInterrupted()) {
 			try {
-				// close the worker thread
-				close = true;
-				worker.join();	// avoids a concurrent modification of out
+				worker.interrupt();	// stops the worker thread
+				worker.join();		// avoids a concurrent modification of out
 
 				// clean things up
 				String letter = outbox.poll();
