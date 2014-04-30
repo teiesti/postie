@@ -7,12 +7,25 @@ import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
-// TODO doc: dont start a second thread for it
+/**
+ * An {@code Outbox} is the part of a {@link Mailbox} which sends messages ("letters"). Any message that is given to
+ * this {@code Outbox} using the {@link #send(String)}-method will be stored until it can be transferred. This class
+ * should only be accessed from the associated {@link Mailbox}.<br />
+ * <br />
+ * Warning: Do not start a {@link Thread} for a {@code Outbox}. These things are completely handled from inside the
+ * class.<br />
+ * Note: An {@link Outbox} must be closed after the last message was handed over to it. When closing the instance,
+ * no message will be discarded.
+ */
 class Outbox implements Runnable, AutoCloseable {
 
+	/** the sink where the messages go to */
 	private BufferedWriter out;
+
+	/** a queue storing messages that have not been transferred yet */
 	private BlockingQueue<String> outbox = new LinkedBlockingDeque<>();
 
+	/** a flag that indicated weather this {@code Inbox} should be closed*/
 	private boolean close = false;
 
 	public Outbox(BufferedWriter out) {
