@@ -110,7 +110,7 @@ public class Mailbox implements AutoCloseable {
 
 	/**
 	 * Returns weather this {@code Mailbox} has an object ("letter") to deliver using the
-	 * {@link #receive(Class)}-method. If this method returns {@link true}, the {@link #receive(Class)} does not block
+	 * {@link #receive(Class)}-method. If this method returns {@code true}, the {@link #receive(Class)} does not block
 	 * on the next call. Please be very careful when using this method in a multi-threaded environment because it
 	 * does only return the current state: Another thread may steal "your" object.
 	 *
