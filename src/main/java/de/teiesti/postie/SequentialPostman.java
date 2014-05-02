@@ -10,7 +10,8 @@ public class SequentialPostman<Letter> extends Postman<Letter> {
 
 	@Override
 	protected void deliver(Letter letter) {
-
+		for (Recipient r : getRecipients())
+			r.accept(letter);
 	}
 
 }
