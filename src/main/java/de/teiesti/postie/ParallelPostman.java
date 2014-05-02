@@ -2,9 +2,9 @@ package de.teiesti.postie;
 
 import java.net.Socket;
 
-public class ParallelDeliverer<Letter> extends Postman<Letter> {
+public class ParallelPostman<Letter> extends Postman<Letter> {
 
-	public ParallelDeliverer(Socket socket, Class<? extends Letter> letterClass) {
+	public ParallelPostman(Socket socket, Class<? extends Letter> letterClass) {
 		super(socket, letterClass);
 	}
 
