@@ -1,7 +1,7 @@
 package de.teiesti.postie;
 
-public interface Recipient {
+public interface Recipient<Letter> {
 
-	public <Letter> void accept(Letter letter);
+	public void accept(Letter letter);
 
 }

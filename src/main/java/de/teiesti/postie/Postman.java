@@ -1,21 +1,40 @@
 package de.teiesti.postie;
 
-public abstract class Postman {
+import java.net.Socket;
+import java.util.Set;
 
-	public <Letter> void send(Letter letter) {
-		// TODO
+public abstract class Postman<Letter> implements Runnable, AutoCloseable {
+
+	public Postman(Socket socket, Class<? extends Letter> letterClass) {
+
 	}
 
-	public void deliver() {
-		// TODO implement, maybe private
+	public /*abstract*/ void send(Letter letter) {
+
 	}
 
-	public void registerRecipient(Recipient recipient) {
-		// TODO
+	protected abstract void deliver(Letter letter);
+
+	protected final Set<Recipient> getRecipients() {
+		return null;
 	}
 
-	public void unregisterRecipient(Recipient recipient) {
-		// TODO
+	public final void registerRecipient(Recipient<Letter> recipient) {
+
+	}
+
+	public final void unregisterRecipient(Recipient<Letter> recipient) {
+
+	}
+
+	@Override
+	public final void run() {
+
+	}
+
+	@Override
+	public /*final?*/ void close() {
+
 	}
 
 }
