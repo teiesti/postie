@@ -48,15 +48,11 @@ class Inbox implements Runnable {
 	 * incoming message that has not been received yet.
 	 *
 	 * @return the current message as a JSON string
+	 *
+	 * @throws InterruptedException if this method was blocking and interrupted
 	 */
-	public String receive() {
-		try {
-			return inbox.take();
-		} catch (InterruptedException e) {
-			Logger.error(e);
-			System.exit(1);
-		}
-		return null;	// will never be executed but is required by Java
+	public String receive() throws InterruptedException {
+		return inbox.take();
 	}
 
 	/**

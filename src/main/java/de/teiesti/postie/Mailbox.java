@@ -99,8 +99,10 @@ public class Mailbox implements AutoCloseable {
 	 * @param <Letter> the type of the received "letter"
 	 *
      * @return the received message
+	 *
+	 * @throws InterruptedException if this method was blocking and interrupted
      */
-	public <Letter> Letter receive(Class<? extends Letter> letterClass) {
+	public <Letter> Letter receive(Class<? extends Letter> letterClass) throws InterruptedException {
 		if (letterClass == null)
 			throw new IllegalArgumentException("letterClass == null");
 

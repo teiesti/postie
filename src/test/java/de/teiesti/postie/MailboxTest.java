@@ -48,13 +48,13 @@ public class MailboxTest {
     }
 
     @Test(timeout = 500)
-    public void simplexSendTest() {
+    public void simplexSendTest() throws InterruptedException {
         bob.send(42);
         assertThat((Integer) alice.receive(Integer.class), is(42));
     }
 
     @Test(timeout=500)
-    public void halfDuplexSendTest() {
+    public void halfDuplexSendTest() throws InterruptedException {
         bob.send(1234);
         assertThat((Integer) alice.receive(Integer.class), is(1234));
         alice.send(4321);
@@ -62,7 +62,7 @@ public class MailboxTest {
     }
 
     @Test(timeout = 500)
-    public void fullDuplexSendTest() {
+    public void fullDuplexSendTest() throws InterruptedException {
         bob.send(1);
         alice.send(2);
         assertThat((Integer) bob.receive(Integer.class), is(2));
@@ -70,7 +70,7 @@ public class MailboxTest {
     }
 
 	@Test(timeout = 500)
-	public void multiSendTest() {
+	public void multiSendTest() throws InterruptedException {
 		for (int i = 0 ; i < 1024; i++)
 			bob.send(i);
 
@@ -87,7 +87,7 @@ public class MailboxTest {
 	}
 
 	@Test(timeout = 500)
-	public void hasLetterTest() {
+	public void hasLetterTest() throws InterruptedException {
 		assertThat(alice.hasLetter(), is(false));
 
 		bob.send(42);
