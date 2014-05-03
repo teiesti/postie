@@ -123,11 +123,13 @@ public class Mailbox implements AutoCloseable {
 	}
 
 	/**
-	 * Closes this {@code Mailbox}. This method does also close the given {@link Socket}.
+	 * Closes this {@code Mailbox}. This method does also close the given {@link Socket}. After closing this {@code
+	 * Mailbox} it is no longer possible to send "letters" using the {@link #send(Object)}-method. Beyond that,
+	 * this {@code Mailbox} does not longer receive any "letters" from the given {@link Socket} but "letters" that
+	 * have been received but not yet collected can still be picked using the {@link #receive(Class)}-method.
 	 */
 	@Override
 	public void close() {
-		// inbox.close(); 	// there is now need to close the inbox
 		outbox.close();
 		try {
 			socket.close();
@@ -135,5 +137,6 @@ public class Mailbox implements AutoCloseable {
 			Logger.error(e);
 			System.exit(1);
 		}
+		inbox.awaitLastLetter();
 	}
 }
