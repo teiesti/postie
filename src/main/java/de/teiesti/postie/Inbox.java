@@ -15,7 +15,8 @@ import java.util.concurrent.LinkedBlockingDeque;
  * Warning: Do not start a {@link Thread} for a {@code Inbox}. These things are completely handled from inside the
  * class.<br>
  * Note: In contrast to {@link Outbox}, an {@link Inbox} must not be closed. Any instance closes automatically when
- * the input ends.
+ * the input ends. But sometimes it might be useful to wait for the last "letter" put into an {@code} Inbox. This can
+ * be done using the {@link #awaitLastLetter()}-method.
  */
 class Inbox implements Runnable {
 
@@ -24,6 +25,9 @@ class Inbox implements Runnable {
 
 	/** a queue in which the messages are store until they are fetched by a user */
 	private BlockingQueue<String> inbox = new LinkedBlockingDeque<>();
+
+	/** the thread working on this {@code Inbox} to receive messages */
+	private Thread worker;
 
 	/**
 	 * Create a new {@code Inbox} that reads messages ("letters") from a given {@link BufferedReader}. Calling this
@@ -38,8 +42,9 @@ class Inbox implements Runnable {
 			throw new IllegalArgumentException("in == null");
 
 		this.in = in;
+		this.worker = new Thread(this);
 
-		new Thread(this).start();
+		worker.start();
 	}
 
 	/**
@@ -63,6 +68,20 @@ class Inbox implements Runnable {
 	 */
 	public boolean hasLetter() {
 		return !inbox.isEmpty();
+	}
+
+	/**
+	 * Blocks until the last "letter" was received from the source. This is just the case if the source has closed and
+	 * the thread working on this {@code Inbox} has terminated. Please note: This method does not wait until this
+	 * {@code Inbox} is empty but until the last letter was put into this {@code Inbox}.
+	 */
+	public void awaitLastLetter() {
+		try {
+			worker.join();
+		} catch (InterruptedException e) {
+			Logger.error(e);
+			System.exit(1);
+		}
 	}
 
 	/**
