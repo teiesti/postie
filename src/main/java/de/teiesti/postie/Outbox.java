@@ -25,7 +25,7 @@ class Outbox implements Runnable, AutoCloseable {
 	/** a queue storing messages that have not been transferred yet */
 	private BlockingQueue<String> outbox = new LinkedBlockingDeque<>();
 
-	/** the thread working this {@code Outbox} to transfer messages*/
+	/** the thread working on this {@code Outbox} to send messages */
 	private Thread worker;
 
 	/**
