@@ -1,6 +1,7 @@
 package de.teiesti.postie;
 
 import org.junit.*;
+import org.junit.rules.Timeout;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -15,19 +16,23 @@ public class MailboxTest {
     private Mailbox alice;
     private Mailbox bob;
 
-	public MailboxTest() throws IOException, InterruptedException {
+	@Rule
+	public Timeout timeout = new Timeout(1000);
+
+	@Before
+	public void create() throws IOException, InterruptedException {
 		Socket[] pair = SocketPairCreator.create(port++);
 		alice = new Mailbox(pair[0]);
 		bob = new Mailbox(pair[1]);
 	}
 
-    @Test(timeout = 500)
+    @Test
     public void simplexSendTest() throws InterruptedException {
         bob.send(42);
         assertThat((Integer) alice.receive(Integer.class), is(42));
     }
 
-    @Test(timeout=500)
+    @Test
     public void halfDuplexSendTest() throws InterruptedException {
         bob.send(1234);
         assertThat((Integer) alice.receive(Integer.class), is(1234));
@@ -35,7 +40,7 @@ public class MailboxTest {
         assertThat((Integer) bob.receive(Integer.class), is(4321));
     }
 
-    @Test(timeout = 500)
+    @Test
     public void fullDuplexSendTest() throws InterruptedException {
         bob.send(1);
         alice.send(2);
@@ -43,7 +48,7 @@ public class MailboxTest {
         assertThat((Integer) alice.receive(Integer.class), is(1));
     }
 
-	@Test(timeout = 500)
+	@Test
 	public void multiSendTest() throws InterruptedException {
 		for (int i = 0 ; i < 1024; i++)
 			bob.send(i);
@@ -52,7 +57,7 @@ public class MailboxTest {
 			assertThat((Integer) alice.receive(Integer.class), is(i));
 	}
 
-	@Test(timeout = 500)
+	@Test
 	public void nullSendTest() {
 		try {
 			bob.send(null);
@@ -60,7 +65,7 @@ public class MailboxTest {
 		} catch (IllegalArgumentException e) {}
 	}
 
-	@Test(timeout = 500)
+	@Test
 	public void hasLetterTest() throws InterruptedException {
 		assertThat(alice.hasLetter(), is(false));
 
