@@ -16,35 +16,10 @@ public class MailboxTest {
     private static Mailbox bob;
 
     @BeforeClass
-    public static void setup() {
-        Thread createAlice = new Thread() {
-           	@Override
-            public void run() {
-                try {
-                    Socket aliceSocket = new ServerSocket(2804).accept();
-                    alice = new Mailbox(aliceSocket);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    fail("could not create alice");
-                }
-            }
-        };
-
-        createAlice.start();
-
-        try {
-            Socket bobSocket = new Socket(InetAddress.getLocalHost(), 2804);
-            bob = new Mailbox(bobSocket);
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail("could not create bob");
-        }
-
-        try {
-            createAlice.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public static void setup() throws IOException, InterruptedException {
+        Socket[] pair = SocketPairCreator.create(2804);
+		alice = new Mailbox(pair[0]);
+		bob = new Mailbox(pair[1]);
     }
 
     @Test(timeout = 500)
