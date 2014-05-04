@@ -3,8 +3,6 @@ package de.teiesti.postie;
 import org.junit.*;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 
 import static org.junit.Assert.*;
@@ -12,15 +10,16 @@ import static org.hamcrest.CoreMatchers.*;
 
 public class MailboxTest {
 
-    private static Mailbox alice;
-    private static Mailbox bob;
+	private static int port = 2103;
 
-    @BeforeClass
-    public static void setup() throws IOException, InterruptedException {
-        Socket[] pair = SocketPairCreator.create(2804);
+    private Mailbox alice;
+    private Mailbox bob;
+
+	public MailboxTest() throws IOException, InterruptedException {
+		Socket[] pair = SocketPairCreator.create(port++);
 		alice = new Mailbox(pair[0]);
 		bob = new Mailbox(pair[1]);
-    }
+	}
 
     @Test(timeout = 500)
     public void simplexSendTest() throws InterruptedException {
@@ -73,10 +72,10 @@ public class MailboxTest {
 		assertThat(alice.hasLetter(), is(false));
 	}
 
-    @AfterClass
-    public static void cleanup() throws Exception {
-        alice.close();
-        bob.close();
-    }
+    @After
+    public void cleanup() throws Exception {
+		alice.close();
+		bob.close();
+	}
 
 }
