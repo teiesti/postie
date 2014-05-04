@@ -76,11 +76,13 @@ class Inbox implements Runnable {
 	 * {@code Inbox} is empty but until the last letter was put into this {@code Inbox}.
 	 */
 	public void awaitLastLetter() {
-		try {
-			worker.join();
-		} catch (InterruptedException e) {
-			Logger.error(e);
-			System.exit(1);
+		if (!worker.isAlive()) {
+			try {
+				worker.join();
+			} catch (InterruptedException e) {
+				Logger.error(e);
+				System.exit(1);
+			}
 		}
 	}
 
