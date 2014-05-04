@@ -108,6 +108,7 @@ class Outbox implements Runnable, AutoCloseable {
 				while (letter != null) {
 					out.write(letter);
 					out.newLine();
+					letter = outbox.poll();
 				}
 
 				// don't close out here, because it belongs to a socket which is handled from elsewhere
