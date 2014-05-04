@@ -51,7 +51,7 @@ public class Mailbox implements AutoCloseable {
 			int inBuffer = socket.getReceiveBufferSize();
 			InputStream inStream = socket.getInputStream();
 			BufferedReader in = new BufferedReader(new InputStreamReader(inStream), inBuffer);
-			inbox = new Inbox(in);
+			inbox = new Inbox(in, this);
 
 			int outBuffer = socket.getSendBufferSize();
 			OutputStream outStream = socket.getOutputStream();
@@ -127,16 +127,27 @@ public class Mailbox implements AutoCloseable {
 	 * Mailbox} it is no longer possible to send "letters" using the {@link #send(Object)}-method. Beyond that,
 	 * this {@code Mailbox} does not longer receive any "letters" from the given {@link Socket} but "letters" that
 	 * have been received but not yet collected can still be picked using the {@link #receive(Class)}-method.
+	 * // TODO revice documentation
 	 */
 	@Override
 	public void close() {
-		outbox.close();
+		if (socket.isOutputShutdown()) return;		// TODO what if a second thread calls close()
+
 		try {
+			// close the output
+			outbox.close();
+			socket.shutdownOutput();
+
+			// wait until the opposite side has closed the output
+			inbox.awaitLastLetter();
+
+			// finally close the socket
 			socket.close();
+
 		} catch (IOException e) {
 			Logger.error(e);
 			System.exit(1);
 		}
-		inbox.awaitLastLetter();
 	}
+
 }

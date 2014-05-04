@@ -29,6 +29,9 @@ class Inbox implements Runnable {
 	/** the thread working on this {@code Inbox} to receive messages */
 	private Thread worker;
 
+	// TODO documentation
+	private Mailbox mailbox;
+
 	/**
 	 * Create a new {@code Inbox} that reads messages ("letters") from a given {@link BufferedReader}. Calling this
 	 * constructor starts a single thread which handles the incoming messages.
@@ -37,12 +40,13 @@ class Inbox implements Runnable {
 	 *
 	 * @throws IllegalArgumentException if {@code in} is {@code null}
 	 */
-	public Inbox(BufferedReader in) {
+	public Inbox(BufferedReader in, Mailbox mailbox) {
 		if (in == null)
 			throw new IllegalArgumentException("in == null");
 
 		this.in = in;
 		this.worker = new Thread(this);
+		this.mailbox = mailbox;
 
 		worker.start();
 	}
@@ -76,13 +80,11 @@ class Inbox implements Runnable {
 	 * {@code Inbox} is empty but until the last letter was put into this {@code Inbox}.
 	 */
 	public void awaitLastLetter() {
-		if (!worker.isAlive()) {
-			try {
-				worker.join();
-			} catch (InterruptedException e) {
-				Logger.error(e);
-				System.exit(1);
-			}
+		try {
+			worker.join();
+		} catch (InterruptedException e) {
+			Logger.error(e);
+			System.exit(1);
 		}
 	}
 
@@ -98,6 +100,7 @@ class Inbox implements Runnable {
 				inbox.put(letter);
 				letter = in.readLine();
 			}
+			mailbox.close();
 		} catch (InterruptedException | IOException e) {
 			Logger.error(e);
 			System.exit(1);
