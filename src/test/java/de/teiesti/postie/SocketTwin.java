@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-class SocketPairCreator {
+class SocketTwin {
 
-	public static Socket[] create(int port) throws IOException, InterruptedException {
+	private static int port = 2103;
+
+	public static Socket[] create() throws IOException, InterruptedException {
 		SocketAcceptor aliceCreator = new SocketAcceptor(port);
 
-		Socket bob = new Socket("localhost", port);
+		Socket bob = new Socket("localhost", port++);
 		Socket alice = aliceCreator.getSocket();
 
 		return new Socket[] { alice, bob };

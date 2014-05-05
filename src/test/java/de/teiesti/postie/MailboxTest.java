@@ -11,8 +11,6 @@ import static org.hamcrest.CoreMatchers.*;
 
 public class MailboxTest {
 
-	private static int port = 2103;
-
     private Mailbox alice;
     private Mailbox bob;
 
@@ -21,7 +19,7 @@ public class MailboxTest {
 
 	@Before
 	public void create() throws IOException, InterruptedException {
-		Socket[] pair = SocketPairCreator.create(port++);
+		Socket[] pair = SocketTwin.create();
 		alice = new Mailbox(pair[0]);
 		bob = new Mailbox(pair[1]);
 	}
