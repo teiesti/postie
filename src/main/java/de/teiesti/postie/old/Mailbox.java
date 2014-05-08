@@ -1,4 +1,4 @@
-package de.teiesti.postie;
+package de.teiesti.postie.old;
 
 import com.google.gson.Gson;
 import org.pmw.tinylog.Logger;

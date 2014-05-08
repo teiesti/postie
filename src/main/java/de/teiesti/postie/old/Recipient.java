@@ -1,4 +1,4 @@
-package de.teiesti.postie;
+package de.teiesti.postie.old;
 
 public interface Recipient<Letter> {
 

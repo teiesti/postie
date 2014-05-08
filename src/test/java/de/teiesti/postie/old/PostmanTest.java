@@ -1,4 +1,4 @@
-package de.teiesti.postie;
+package de.teiesti.postie.old;
 
 import org.junit.*;
 
