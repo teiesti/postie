@@ -62,8 +62,8 @@ public abstract class Postman<Letter> implements Cloneable {
 	public final Postman start() {
 		// TODO	check conditions: socket?
 
-		sender = new Sender(this);
-		receiver = new Receiver(this);
+		sender = new Sender();
+		receiver = new Receiver();
 
 		sender.start();
 		receiver.start();
@@ -131,13 +131,6 @@ public abstract class Postman<Letter> implements Cloneable {
 
 	private class Sender extends Thread {
 
-		private final Postman postman;
-
-		public Sender(Postman postman) {
-			assert postman != null : "postman == null";
-			this.postman = postman;
-		}
-
 		@Override
 		public void run() {
 			// open output writer
@@ -164,7 +157,7 @@ public abstract class Postman<Letter> implements Cloneable {
 
 			// close the postman output
 			try {
-				postman.socket.shutdownOutput();
+				socket.shutdownOutput();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -174,7 +167,7 @@ public abstract class Postman<Letter> implements Cloneable {
 			BufferedWriter result = null;
 
 			try {
-				int outBuffer = postman.socket.getSendBufferSize();
+				int outBuffer = socket.getSendBufferSize();
 				OutputStream outStream = socket.getOutputStream();
 				result =  new BufferedWriter(new OutputStreamWriter(outStream), outBuffer);
 			} catch (IOException e) {
@@ -188,12 +181,6 @@ public abstract class Postman<Letter> implements Cloneable {
 	}
 
 	private class Receiver extends Thread {
-		private final Postman postman;
-
-		public Receiver (Postman postman) {
-			assert postman != null : "postman == null";
-			this.postman = postman;
-		}
 
 		@Override
 		public void run() {
@@ -235,7 +222,7 @@ public abstract class Postman<Letter> implements Cloneable {
 			BufferedReader result = null;
 
 			try {
-				int inBuffer = postman.socket.getReceiveBufferSize();
+				int inBuffer = socket.getReceiveBufferSize();
 				InputStream inStream = socket.getInputStream();
 				result =  new BufferedReader(new InputStreamReader(inStream), inBuffer);
 			} catch (IOException e) {
