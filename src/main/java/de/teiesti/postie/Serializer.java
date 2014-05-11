@@ -1,4 +1,4 @@
-package de.teiesti.postie.serializer;
+package de.teiesti.postie;
 
 import java.io.IOException;
 import java.io.Reader;

@@ -1,4 +1,4 @@
-package de.teiesti.postie.serializer;
+package de.teiesti.postie.serializers;
 
 import com.google.gson.Gson;
 

@@ -1,4 +1,4 @@
-package de.teiesti.postie.serializer.matcher;
+package de.teiesti.postie.serializers.matcher;
 
 /**
  * A {@code KnuthMorrisPrattMatcher} is a {@link Matcher} that uses an adjusted version of the Knuth–Morris–Pratt

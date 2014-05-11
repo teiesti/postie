@@ -1,7 +1,8 @@
-package de.teiesti.postie.serializer;
+package de.teiesti.postie.serializers;
 
-import de.teiesti.postie.serializer.matcher.KnuthMorrisPrattMatcher;
-import de.teiesti.postie.serializer.matcher.Matcher;
+import de.teiesti.postie.Serializer;
+import de.teiesti.postie.serializers.matcher.KnuthMorrisPrattMatcher;
+import de.teiesti.postie.serializers.matcher.Matcher;
 
 import java.io.IOException;
 import java.io.Reader;

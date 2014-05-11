@@ -1,6 +1,5 @@
 package de.teiesti.postie;
 
-import de.teiesti.postie.serializer.Serializer;
 import org.pmw.tinylog.Logger;
 
 import java.io.*;

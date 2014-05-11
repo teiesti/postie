@@ -1,4 +1,4 @@
-package de.teiesti.postie.serializer.matcher;
+package de.teiesti.postie.serializers.matcher;
 
 /**
  * A {@code Matcher} is an automaton which is fed with characters. For each given character the automaton returns
