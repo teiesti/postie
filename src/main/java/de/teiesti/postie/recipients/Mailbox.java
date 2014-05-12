@@ -19,4 +19,8 @@ public class Mailbox<Letter> implements Recipient<Letter> {
         return inbox.take();
     }
 
+    public boolean hasLetter() {
+        return !inbox.isEmpty();
+    }
+
 }
