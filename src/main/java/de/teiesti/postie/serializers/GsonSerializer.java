@@ -7,7 +7,7 @@ public class GsonSerializer<Letter> extends AbstractSerializer<Letter> {
 	private Gson gson = new Gson();
 	private Class<Letter> letterClass;
 
-	private GsonSerializer(Class<Letter> letterClass) {
+	public GsonSerializer(Class<Letter> letterClass) {
 		if (letterClass == null)
 			throw new IllegalArgumentException("letterClass == null");
 
