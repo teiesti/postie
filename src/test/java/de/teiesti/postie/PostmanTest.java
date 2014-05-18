@@ -7,6 +7,8 @@ import org.junit.rules.Timeout;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -139,6 +141,16 @@ public abstract class PostmanTest {
 	}
 
 	@Test
+	public void nullSendTest() {
+		setupStart();
+
+		try {
+			bob.send(null);
+			fail();
+		} catch (IllegalArgumentException e) {}
+	}
+
+	@Test
 	public void simplexSendTest() throws InterruptedException{
 		setupStart();
 
@@ -149,7 +161,67 @@ public abstract class PostmanTest {
 		assertThat(aliceMailbox.receive(), is(42));
 	}
 
-	// TODO test start, send, receive, stop, ...
+	@Test
+	public void halfDuplexSendTest() throws InterruptedException {
+		setupStart();
+
+		Mailbox<Integer> aliceMailbox = new Mailbox<>();
+		alice.register(aliceMailbox);
+
+		Mailbox<Integer> bobMailbox = new Mailbox<>();
+		bob.register(bobMailbox);
+
+		bob.send(1234);
+		assertThat(aliceMailbox.receive(), is(1234));
+		alice.send(4321);
+		assertThat(bobMailbox.receive(), is(4321));
+	}
+
+	@Test
+	public void fullDuplexSendTest() throws InterruptedException {
+		setupStart();
+
+		Mailbox<Integer> aliceMailbox = new Mailbox<>();
+		alice.register(aliceMailbox);
+
+		Mailbox<Integer> bobMailbox = new Mailbox<>();
+		bob.register(bobMailbox);
+
+		bob.send(1);
+		alice.send(2);
+		assertThat(bobMailbox.receive(), is(2));
+		assertThat(aliceMailbox.receive(), is(1));
+	}
+
+	@Test
+	public void multiLetterSendTest() throws InterruptedException {
+		setupStart();
+
+		Mailbox<Integer> aliceMailbox = new Mailbox<>();
+		alice.register(aliceMailbox);
+
+		for (int i = 0 ; i < 1024; i++)
+			bob.send(i);
+
+		for (int i = 0; i < 1024; i++)
+			assertThat(aliceMailbox.receive(), is(i));
+	}
+
+	@Test
+	public void multiRecipientSendTest() throws InterruptedException {
+		setupStart();
+
+		Mailbox<Integer>[] mailboxes = new Mailbox[100];
+		for (int i = 0; i < mailboxes.length; i++) {
+			mailboxes[i] = new Mailbox<>();
+			alice.register(mailboxes[i]);
+		}
+
+		bob.send(42);
+
+		for (int i = 0; i < mailboxes.length; i++)
+			assertThat(mailboxes[i].receive(), is(42));
+	}
 
 	@After
 	public void after() {
