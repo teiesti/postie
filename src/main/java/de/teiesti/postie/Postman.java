@@ -276,7 +276,16 @@ public abstract class Postman<Letter> implements Cloneable {
 			}
 
 			// clean up
-			// TODO
+			try {
+				while (!outbox.isEmpty()) {
+					letter = outbox.poll();
+					serializer.encodeNext(out, letter);
+				}
+				out.flush();
+			} catch (IOException e) {
+				Logger.error(e);
+				System.exit(1);
+			}
 
 			// close the postman output
 			try {
