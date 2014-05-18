@@ -22,7 +22,7 @@ public class KnuthMorrisPrattMatcher implements Matcher {
 	}
 
 	private void analysePattern() {
-		prefixTable = new int[pattern.length];
+		prefixTable = new int[pattern.length + 1];
 
 		int i = 0;
 		int j = -1;
