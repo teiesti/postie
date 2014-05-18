@@ -1,11 +1,7 @@
 package de.teiesti.postie;
 
-import de.teiesti.postie.recipients.Mailbox;
 import de.teiesti.postie.serializers.GsonSerializer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.Timeout;
 
 import java.io.IOException;
@@ -60,7 +56,7 @@ public abstract class PostmanTest {
 
 		setup();
 		alice.start();
-		bob.start();
+		bob.start();	// if we don't do this, alice will not close
 
 		try {
 			alice.bind(new Socket());
@@ -84,7 +80,7 @@ public abstract class PostmanTest {
 
 		setup();
 		alice.start();
-		bob.start();
+		bob.start();	// if we don't do this, alice will not close
 
 		try {
 			alice.use(new GsonSerializer<>(Integer.class));
@@ -94,6 +90,44 @@ public abstract class PostmanTest {
 		alice.stop();
 
 		alice.use(new GsonSerializer<>(Integer.class));
+	}
+
+	@Test
+	public void startStopTest() {
+		assertThat(alice.isRunning(), is(false));
+		assertThat(bob.isRunning(), is(false));
+
+		try {
+			alice.start();
+			fail();
+		} catch (IllegalStateException e) {}
+
+		try {
+			bob.start();
+			fail();
+		} catch (IllegalStateException e) {}
+
+		setup();
+		alice.start();
+		bob.start();
+
+		assertThat(alice.isRunning(), is(true));
+		assertThat(bob.isRunning(), is(true));
+
+		alice.stop();
+
+		assertThat(alice.isRunning(), is(false));
+		assertThat(bob.isRunning(), is(false));
+
+		try {
+			alice.start();
+			fail();
+		} catch (IllegalStateException e) {}
+
+		try {
+			bob.start();
+			fail();
+		} catch (IllegalStateException e) {}
 	}
 
 	// TODO test start, send, receive, stop, ...
