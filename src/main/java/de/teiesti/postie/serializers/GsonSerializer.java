@@ -26,6 +26,7 @@ public class GsonSerializer<Letter> extends AbstractSerializer<Letter> {
 
 	@Override
 	public String separator() {
+		// TODO this make maybe problems when using on different OS (e.g. Linux and Windows)
 		return System.lineSeparator();
 	}
 

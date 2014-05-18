@@ -5,7 +5,6 @@ import org.pmw.tinylog.Logger;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.Set;
 
 public class Office {
@@ -19,11 +18,13 @@ public class Office {
 	private Thread acceptor;
 
 	public Office bind(ServerSocket socket) {
-
+		// FIXME
+		return this;
 	}
 
 	public Office spawn(Postman blueprint) {
-
+		// FIXME
+		return this;
 	}
 
 	public Office start() {
@@ -34,7 +35,8 @@ public class Office {
 	}
 
 	public Office stop() {
-		// TODO how to do this?
+		// FIXME how to do this?
+		return this;
 	}
 
 	private class Acceptor extends Thread {
