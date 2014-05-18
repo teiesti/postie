@@ -112,8 +112,13 @@ public abstract class Postman<Letter> implements Cloneable {
 	 * @return this {@link Postman}
 	 */
 	public final Postman start() {
-		// TODO	check conditions: socket?; dont forget the javadoc
-		// TODO check whether this Postman is running
+		// TODO add javadoc for the IllegalStateExceptions
+		if (isRunning())
+			throw new IllegalStateException("cannot start because this postman is already running");
+		if (socket == null)
+			throw new IllegalStateException("cannot start because this postman was bound to no socket");
+		if (socket.isClosed())
+			throw new IllegalStateException("cannot start because bound socket is already closed");
 
 		sender = new Sender();
 		receiver = new Receiver();
@@ -249,7 +254,7 @@ public abstract class Postman<Letter> implements Cloneable {
 	 * @return if this {@link Postman} is running.
 	 */
 	public final boolean isRunning() {
-		return sender != null && !sender.isInterrupted();
+		return receiver != null && receiver.isAlive();
 	}
 
 	private class Sender extends Thread {

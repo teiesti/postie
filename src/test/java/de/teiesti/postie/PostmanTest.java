@@ -117,6 +117,7 @@ public abstract class PostmanTest {
 		alice.stop();
 
 		assertThat(alice.isRunning(), is(false));
+		while (bob.isRunning());	// spinlock that waits for the other thread
 		assertThat(bob.isRunning(), is(false));
 
 		try {
