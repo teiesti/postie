@@ -17,11 +17,8 @@ import static org.junit.Assert.fail;
 
 public abstract class PostmanTest {
 
-	private Postman alice;
-	private Mailbox aliceMailbox;
-
-	private Postman bob;
-	private Mailbox bobMailbox;
+	protected Postman<Integer> alice;
+	protected Postman<Integer> bob;
 
 	public abstract <Letter> Postman<Letter> createPostman();
 
@@ -29,67 +26,76 @@ public abstract class PostmanTest {
     public Timeout timeout = new Timeout(1000);
 
 	@Before
-	public void setup() throws IOException, InterruptedException {
-		Socket[] pair = SocketTwin.create();
-
-        alice.use(new GsonSerializer(Integer.class));
-        bob.use(new GsonSerializer(Integer.class));
-
-        alice.bind(pair[0]);
-        bob.bind(pair[1]);
-
-        alice.register(aliceMailbox);
-        alice.register(bobMailbox);
-
-        alice.start();
-        bob.start();
+	public void before() {
+		alice = createPostman();
+		bob = createPostman();
 	}
 
-    @Test
-    public void simplexSendTest() throws InterruptedException {
-        bob.send(42);
-        assertThat((Integer) aliceMailbox.receive(), is(42));
-    }
+	public void setup() {
+		alice.use(new GsonSerializer(Integer.class));
+		bob.use(new GsonSerializer(Integer.class));
 
-    @Test
-    public void halfDuplexSendTest() throws InterruptedException {
-        bob.send(1234);
-        assertThat((Integer) aliceMailbox.receive(), is(1234));
-        alice.send(4321);
-        assertThat((Integer) bobMailbox.receive(), is(4321));
-    }
+		Socket[] twin = null;
+		try {
+			twin = SocketTwin.create();
+		} catch (IOException | InterruptedException e) {
+			fail("could not create socket twin");
+		}
 
-    @Test
-    public void fullDuplexSendTest() throws InterruptedException {
-        bob.send(1);
-        alice.send(2);
-        assertThat((Integer) bobMailbox.receive(), is(2));
-        assertThat((Integer) aliceMailbox.receive(), is(1));
-    }
+		alice.bind(twin[0]);
+		bob.bind(twin[1]);
+	}
 
-    @Test
-    public void multiSendTest() throws InterruptedException {
-        for (int i = 0 ; i < 1024; i++)
-            bob.send(i);
+	@Test
+	public void bindTest() {
+		alice.bind(new Socket());
+		alice.bind(new Socket());
 
-        for (int i = 0; i < 1024; i++)
-            assertThat((Integer) aliceMailbox.receive(), is(i));
-    }
+		// TODO test some socket that should not be bound --> closed socket, ...
 
-    @Test
-    public void nullSendTest() {
-        try {
-            bob.send(null);
-            fail();
-        } catch (IllegalArgumentException e) {}
-    }
+		try {
+			alice.bind(null);
+			fail();
+		} catch(IllegalArgumentException e) {}
 
-    // TODO add something like configuration tests
+		setup();
+		alice.start();
+		bob.start();
 
-	@After
-	public void cleanup() throws Exception {
+		try {
+			alice.bind(new Socket());
+			fail();
+		} catch (IllegalStateException e) {}
+
 		alice.stop();
-        bob.stop();
+
+		alice.bind(new Socket());
 	}
+
+	@Test
+	public void useTest() {
+		alice.use(new GsonSerializer<>(Integer.class));
+		alice.use(new GsonSerializer<>(Integer.class));
+
+		try {
+			alice.bind(null);
+			fail();
+		} catch(IllegalArgumentException e) {}
+
+		setup();
+		alice.start();
+		bob.start();
+
+		try {
+			alice.use(new GsonSerializer<>(Integer.class));
+			fail();
+		} catch (IllegalStateException e) {}
+
+		alice.stop();
+
+		alice.use(new GsonSerializer<>(Integer.class));
+	}
+
+	// TODO test start, send, receive, stop, ...
 
 }
