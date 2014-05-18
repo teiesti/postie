@@ -1,5 +1,6 @@
 package de.teiesti.postie;
 
+import de.teiesti.postie.recipients.Mailbox;
 import de.teiesti.postie.serializers.GsonSerializer;
 import org.junit.*;
 import org.junit.rules.Timeout;
@@ -40,6 +41,12 @@ public abstract class PostmanTest {
 
 		alice.bind(twin[0]);
 		bob.bind(twin[1]);
+	}
+
+	public void setupStart() {
+		setup();
+		alice.start();
+		bob.start();
 	}
 
 	@Test
@@ -131,6 +138,23 @@ public abstract class PostmanTest {
 		} catch (IllegalStateException e) {}
 	}
 
+	@Test
+	public void simplexSendTest() throws InterruptedException{
+		setupStart();
+
+		Mailbox<Integer> aliceMailbox = new Mailbox<>();
+		alice.register(aliceMailbox);
+
+		bob.send(42);
+		assertThat(aliceMailbox.receive(), is(42));
+	}
+
 	// TODO test start, send, receive, stop, ...
+
+	@After
+	public void after() {
+		if (alice.isRunning()) alice.stop();
+		if (bob.isRunning()) bob.stop();
+	}
 
 }
