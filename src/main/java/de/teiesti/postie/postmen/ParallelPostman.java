@@ -6,10 +6,26 @@ import de.teiesti.postie.Recipient;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * A {@link ParallelPostman} is a {@link Postman} that delivers {@link Letter}s in parallel using an
+ * {@link ExecutorService}. For each pair of received {@link Letter} and registered {@link Recipient} a {@link Runnable}
+ * is created and submitted to the {@link ExecutorService}. Therefore, no guarantees concerning the {@link Letter}
+ * order where made.
+ *
+ * @param <Letter> type of the letters
+ */
 public class ParallelPostman<Letter> extends Postman<Letter> {
 
     private ExecutorService es = Executors.newCachedThreadPool();
 
+	/**
+	 * Delivers a given {@link Letter} in parallel using an {@link ExecutorService}. This method creates a {@link
+	 * Runnable} for each {@link Recipient} and submits it to the {@link ExecutorService}.
+	 *
+	 * @param letter the {@link Letter} to deliver
+	 *
+	 * @return this {@link Postman}
+	 */
     @Override
     protected Postman<Letter> deliver(Letter letter) {
         for (Recipient<Letter> r : recipients)
