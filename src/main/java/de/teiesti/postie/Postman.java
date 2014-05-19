@@ -17,7 +17,9 @@ import java.util.concurrent.LinkedBlockingDeque;
  * To setup a {@link Postman} you must bind a {@link Socket} with {@link #bind(Socket)}. Beyond, you must register a
  * {@link Serializer} with {@link #use(Serializer)}. Afterwards you can start the {@link Postman} with
  * {@link #start()}. This will start two threads to handle the incoming and outgoing letters. You can stop a
- * {@link Postman} with {@link #stop()}.
+ * {@link Postman} with {@link #stop()}.<br>
+ * <br>
+ * All provided methods are thread-safe.
  *
  * @param <Letter> type of the letters
  */
@@ -41,7 +43,7 @@ public abstract class Postman<Letter> implements Cloneable {
 	 * @throws IllegalArgumentException if this {@link Postman} is running
 	 */
 	@Override
-	public Postman clone() {
+	public synchronized Postman clone() {
 		if (this.isRunning())
 			throw new IllegalStateException("cannot clone because this postman is running");
 
@@ -69,7 +71,7 @@ public abstract class Postman<Letter> implements Cloneable {
 	 * @throws IllegalStateException if this {@link Postman} is running
 	 * @throws IllegalArgumentException if {@code socket} is {@code null}
 	 */
-	public final Postman bind(Socket socket) {
+	public synchronized final Postman bind(Socket socket) {
 		if (this.isRunning())
 			throw new IllegalStateException("cannot bind a socket because this postman is running");
 		if (socket == null)
@@ -94,7 +96,7 @@ public abstract class Postman<Letter> implements Cloneable {
 	 * @throws IllegalStateException if this {@link Postman} is running
 	 * @throws IllegalArgumentException if {@code serializer} is {@code null}
 	 */
-	public final Postman use(Serializer<Letter> serializer) {
+	public synchronized final Postman use(Serializer<Letter> serializer) {
 		if (this.isRunning())
 			throw new IllegalStateException("cannot use a serializer because this postman is running");
 		if (serializer == null)
@@ -111,7 +113,7 @@ public abstract class Postman<Letter> implements Cloneable {
 	 *
 	 * @return this {@link Postman}
 	 */
-	public final Postman start() {
+	public synchronized final Postman start() {
 		// TODO add javadoc for the IllegalStateExceptions
 		if (isRunning())
 			throw new IllegalStateException("cannot start because this postman is already running");
@@ -199,7 +201,7 @@ public abstract class Postman<Letter> implements Cloneable {
 	/**
 	 * This method should delivers the given {@link Letter} to any {@link Recipient} that was registered with
 	 * {@link #register(Recipient)}. This method is called from the {@link Thread} that receives {@link Letter}s from
-	 * the {@link Socket}. Therefore this method should not block to long.
+	 * the {@link Socket}. Therefore this method should not block for long.
 	 *
 	 * @param letter the {@link Letter} to deliver
 	 *
@@ -229,7 +231,7 @@ public abstract class Postman<Letter> implements Cloneable {
 	 *
 	 * @throws IllegalStateException if this {@link Postman} is running
 	 */
-	public final Postman stop() {
+	public synchronized final Postman stop() {
 		if (!isRunning())
 			throw new IllegalStateException("cannot stop because this postman is not running");
 
