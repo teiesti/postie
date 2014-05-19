@@ -8,21 +8,33 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
+/**
+ * An {@link AbstractSerializer} is a {@link Serializer} that implements {@link #encodeNext(java.io.Writer, Object)} and
+ * {@link #decodeNext(java.io.Reader)} by using {@link #encode(Object)}, {@link #decode(String)} and
+ * {@link #separator()} in a generic way.
+ *
+ * @param <Letter> type of the letters
+ */
 public abstract class AbstractSerializer<Letter> implements Serializer<Letter> {
 
 	private Matcher matcher;
 
+	/**
+	 * Creates a new {@link AbstractSerializer}.
+	 */
 	public AbstractSerializer() {
 		matcher = new KnuthMorrisPrattMatcher();
 		matcher.initialize(separator());
 	}
 
+	@Override
 	public void encodeNext(Writer writer, Letter letter) throws IOException {
 		String rawLetter = encode(letter);
 		writer.write(rawLetter);
 		writer.write(separator());
 	}
 
+	@Override
 	public Letter decodeNext(Reader reader) throws IOException {
 		StringBuilder rawLetter = new StringBuilder();
 
