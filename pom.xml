@@ -14,7 +14,7 @@
 	<packaging>jar</packaging>
 
 	<name>postie</name>
-	<description>A library that helps sending messages over TCP</description>
+	<description>A library that helps You to send messages over a network connection</description>
 
 	<url>https://github.com/teiesti/postie</url>
 
