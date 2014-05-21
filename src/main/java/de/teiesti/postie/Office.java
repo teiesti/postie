@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,7 +16,7 @@ public class Office {
 
 	private Postman blueprint;
 
-	private Set<Postman> postmen = new HashSet<>();
+	private Set<Postman> postmen = Collections.synchronizedSet(new HashSet<Postman>());
 
 	private Thread acceptor;
 
@@ -55,11 +56,11 @@ public class Office {
             System.exit(1);
         }
 
-        if (stopPostmen) {
+        acceptor = null;
+
+        if (stopPostmen)
             for (Postman p : postmen)
                 p.stop();
-            postmen.clear();
-        }
 
         return this;
     }
@@ -77,8 +78,21 @@ public class Office {
 			while (true) {
 				try {
 					socket = serverSocket.accept();
-					postman = blueprint.clone().bind(socket).start();
+					postman = blueprint.clone().bind(socket);
+
+                    postman.register(new Recipient() {
+                        @Override
+                        public void accept(Object o, Postman from) {
+                        }
+
+                        @Override
+                        public void acceptedLast(Postman from) {
+                            postmen.remove(from);
+                        }
+                    });
+
 					postmen.add(postman);
+                    postman.start();
 				} catch (IOException e) {
 					if (e instanceof SocketException)
                         break;
