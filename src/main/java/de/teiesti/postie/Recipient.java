@@ -12,8 +12,11 @@ public interface Recipient<Letter> {
 	 * {@link Letter}.
 	 *
 	 * @param letter the {@link Letter}
-	 * @param postman the {@link Postman} that delivered the {@link Letter}
+	 * @param from the {@link Postman} that delivered the {@link Letter}
 	 */
-	public void accept(Letter letter, Postman postman);
+	public void accept(Letter letter, Postman from);
+
+    // TODO documentation
+    public void acceptedLast(Postman from);
 
 }

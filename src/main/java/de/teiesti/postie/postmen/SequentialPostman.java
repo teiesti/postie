@@ -30,4 +30,12 @@ public class SequentialPostman<Letter> extends Postman<Letter> {
         return this;
     }
 
+    // TODO documentation
+    protected Postman<Letter> reportLast() {
+        for (Recipient r : recipients)
+            r.acceptedLast(this);
+
+        return this;
+    }
+
 }

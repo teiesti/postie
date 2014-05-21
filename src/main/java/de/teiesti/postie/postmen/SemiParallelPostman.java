@@ -44,10 +44,16 @@ public class SemiParallelPostman<Letter> extends Postman<Letter> {
         }
 
         cdl = new CountDownLatch(recipients.size());
+        // TODO this may causes errors if recipient is modified concurrently
 
         for (Recipient<Letter> r : recipients)
             es.submit(new Worker(r, letter, this, cdl));
 
+        return this;
+    }
+
+    protected Postman<Letter> reportLast() {
+        // FIXME
         return this;
     }
 

@@ -34,6 +34,11 @@ public class ParallelPostman<Letter> extends Postman<Letter> {
         return this;
     }
 
+    protected Postman<Letter> reportLast() {
+        // FIXME
+        return this;
+    }
+
     private class Worker implements Runnable {
 
         private Recipient<Letter> recipient;

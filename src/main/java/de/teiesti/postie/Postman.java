@@ -209,6 +209,9 @@ public abstract class Postman<Letter> implements Cloneable {
 	 */
 	protected abstract Postman deliver(Letter letter);
 
+    // TODO add documentation
+    protected abstract Postman reportLast();
+
 	/**
 	 * Stops this {@link Postman}. If this {@link Postman} is not running yet, this method throws a
 	 * {@link IllegalStateException}. Stopping a {@link Postman} stops the two threads that send and receive
@@ -337,6 +340,9 @@ public abstract class Postman<Letter> implements Cloneable {
 				Logger.error(e);
 				System.exit(1);
 			}
+
+            // report recipients that the last letter was delivered
+            reportLast();
 
 			// close sender: receiving EOF shows that the opposite site wants to close the connection
 			sender.interrupt();
