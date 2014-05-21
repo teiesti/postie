@@ -5,6 +5,8 @@ import org.pmw.tinylog.Logger;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.HashSet;
 import java.util.Set;
 
 public class Office {
@@ -13,31 +15,58 @@ public class Office {
 
 	private Postman blueprint;
 
-	private Set<Postman> postmen;
+	private Set<Postman> postmen = new HashSet<>();
 
 	private Thread acceptor;
 
-	public Office bind(ServerSocket socket) {
-		// FIXME
+	public final synchronized Office bind(ServerSocket serverSocket) {
+		// FIXME check consistency
+
+        this.serverSocket = serverSocket;
+
 		return this;
 	}
 
-	public Office spawn(Postman blueprint) {
-		// FIXME
+	public final synchronized Office spawn(Postman blueprint) {
+        // FIXME check consistency
+
+        this.blueprint = blueprint;
+
 		return this;
 	}
 
-	public Office start() {
+	public final synchronized Office start() {
 		acceptor = new Acceptor();
 		acceptor.start();
 
 		return this;
 	}
 
-	public Office stop() {
-		// FIXME how to do this?
-		return this;
-	}
+	public final synchronized Office stop() {
+        return stop(false);
+    }
+
+    public final synchronized Office stop(boolean stopPostmen) {
+        try {
+            serverSocket.close();
+            acceptor.join();
+        } catch (IOException | InterruptedException e) {
+            Logger.error(e);
+            System.exit(1);
+        }
+
+        if (stopPostmen) {
+            for (Postman p : postmen)
+                p.stop();
+            postmen.clear();
+        }
+
+        return this;
+    }
+
+    public final boolean isRunning() {
+        return acceptor != null && acceptor.isAlive();
+    }
 
 	private class Acceptor extends Thread {
 
@@ -45,13 +74,16 @@ public class Office {
 		public void run() {
 			Socket socket;
 			Postman postman;
-			while (!isInterrupted()) {
+			while (true) {
 				try {
 					socket = serverSocket.accept();
 					postman = blueprint.clone().bind(socket).start();
 					postmen.add(postman);
 				} catch (IOException e) {
-					Logger.error(e);
+					if (e instanceof SocketException)
+                        break;
+
+                    Logger.error(e);
 					System.exit(1);
 				}
 			}
