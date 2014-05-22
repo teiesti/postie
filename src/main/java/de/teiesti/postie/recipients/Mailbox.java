@@ -29,7 +29,12 @@ public class Mailbox<Letter> implements Recipient<Letter> {
        inbox.add(letter);
     }
 
-	// TODO doc --> this method does nothing
+	/**
+	 * Because a {@link Mailbox} does not need to know that the last {@link Letter} was received,
+	 * this method does nothing.
+	 *
+	 * @param from the {@link Postman} that is stopping
+	 */
 	@Override
 	public void acceptedLast(Postman from) { /*nothing to do*/ }
 
