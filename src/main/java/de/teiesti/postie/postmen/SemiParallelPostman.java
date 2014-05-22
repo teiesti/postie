@@ -2,12 +2,10 @@ package de.teiesti.postie.postmen;
 
 import de.teiesti.postie.Postman;
 import de.teiesti.postie.Recipient;
-import org.pmw.tinylog.Logger;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
-import java.util.concurrent.atomic.AtomicInteger;
 
 // TODO doc: difference between ParallelPostman and SemiParallelPostman: the last sequentializes the letters!
 
@@ -41,24 +39,32 @@ public class SemiParallelPostman<Letter> extends Postman<Letter> {
 
         for (Recipient<Letter> r : recipients) {
 			phaser.register();
-			es.submit(new Worker(r, letter, this));
+			es.submit(new Deliverer(r, letter, this));
 		}
 
         return this;
     }
 
     protected Postman<Letter> reportLast() {
-        // FIXME
-        return this;
+        phaser.arriveAndAwaitAdvance();
+
+		for (Recipient<Letter> r : recipients) {
+			phaser.register();
+			es.submit(new LastReporter(r, this));
+		}
+
+		phaser.arriveAndAwaitAdvance();
+
+		return this;
     }
 
-    private class Worker implements Runnable {
+    private class Deliverer implements Runnable {
 
         private Recipient<Letter> recipient;
         private Letter letter;
         private Postman postman;
 
-        public Worker(Recipient<Letter> recipient, Letter letter, Postman postman) {
+        public Deliverer(Recipient<Letter> recipient, Letter letter, Postman postman) {
             this.recipient = recipient;
             this.letter = letter;
             this.postman = postman;
@@ -69,6 +75,25 @@ public class SemiParallelPostman<Letter> extends Postman<Letter> {
 			recipient.accept(letter, postman);
             phaser.arriveAndDeregister();
         }
+
     }
+
+	private class LastReporter implements Runnable {
+
+		private Recipient<Letter> recipient;
+		private Postman postman;
+
+		public LastReporter(Recipient<Letter> recipient, Postman postman) {
+			this.recipient = recipient;
+			this.postman = postman;
+		}
+
+		@Override
+		public void run() {
+			recipient.acceptedLast(postman);
+			phaser.arriveAndDeregister();
+		}
+
+	}
 
 }
