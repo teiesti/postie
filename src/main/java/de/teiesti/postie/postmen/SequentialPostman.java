@@ -16,7 +16,7 @@ import de.teiesti.postie.Recipient;
 public class SequentialPostman<Letter> extends Postman<Letter> {
 
 	/**
-	 * Delives the given {@link Letter} in a sequential way. This method does not start a new {@link Thread}.
+	 * Delivers the given {@link Letter} in a sequential way. This method does not start a new {@link Thread}.
 	 *
 	 * @param letter the {@link Letter} to deliver
 	 *
@@ -30,7 +30,12 @@ public class SequentialPostman<Letter> extends Postman<Letter> {
         return this;
     }
 
-    // TODO documentation
+	/**
+	 * Reports to any {@link Recipient} that the last {@link Letter} was delivered. This method does not start a new
+	 * {@link Thread}.
+	 *
+	 * @return this {@link Postman}
+	 */
     protected Postman<Letter> reportLast() {
         for (Recipient r : recipients)
             r.acceptedLast(this);
