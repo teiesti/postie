@@ -29,6 +29,10 @@ public class Mailbox<Letter> implements Recipient<Letter> {
        inbox.add(letter);
     }
 
+	// TODO doc --> this method does nothing
+	@Override
+	public void acceptedLast(Postman from) { /*nothing to do*/ }
+
 	/**
 	 * Returns a {@link Letter} that was put into this {@link Mailbox} with {@link #accept(Object,
 	 * Postman)}. A {@link Mailbox} works according to the FIFO principle: {@link #receive()} will return the {@link
