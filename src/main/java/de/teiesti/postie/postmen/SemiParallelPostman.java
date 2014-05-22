@@ -4,9 +4,10 @@ import de.teiesti.postie.Postman;
 import de.teiesti.postie.Recipient;
 import org.pmw.tinylog.Logger;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Phaser;
+import java.util.concurrent.atomic.AtomicInteger;
 
 // TODO doc: difference between ParallelPostman and SemiParallelPostman: the last sequentializes the letters!
 
@@ -22,7 +23,7 @@ import java.util.concurrent.Executors;
 public class SemiParallelPostman<Letter> extends Postman<Letter> {
 
     private ExecutorService es = Executors.newCachedThreadPool();
-    private CountDownLatch cdl = new CountDownLatch(0);
+	private Phaser phaser = new Phaser(1);
 
 	/**
 	 * Delivers a given {@link Letter} in parallel using an {@link ExecutorService}. This method creates a {@link
@@ -36,18 +37,12 @@ public class SemiParallelPostman<Letter> extends Postman<Letter> {
 	 */
     @Override
     protected Postman<Letter> deliver(Letter letter) {
-        try {
-            cdl.await();
-        } catch (InterruptedException e) {
-            Logger.error(e);
-            System.exit(1);
-        }
+		phaser.arriveAndAwaitAdvance();
 
-        cdl = new CountDownLatch(recipients.size());
-        // TODO this may causes errors if recipient is modified concurrently
-
-        for (Recipient<Letter> r : recipients)
-            es.submit(new Worker(r, letter, this, cdl));
+        for (Recipient<Letter> r : recipients) {
+			phaser.register();
+			es.submit(new Worker(r, letter, this));
+		}
 
         return this;
     }
@@ -63,19 +58,16 @@ public class SemiParallelPostman<Letter> extends Postman<Letter> {
         private Letter letter;
         private Postman postman;
 
-        private CountDownLatch cdl;
-
-        public Worker(Recipient<Letter> recipient, Letter letter, Postman postman, CountDownLatch cdl) {
+        public Worker(Recipient<Letter> recipient, Letter letter, Postman postman) {
             this.recipient = recipient;
             this.letter = letter;
             this.postman = postman;
-            this.cdl = cdl;
         }
 
         @Override
         public void run() {
-            recipient.accept(letter, postman);
-            cdl.countDown();
+			recipient.accept(letter, postman);
+            phaser.arriveAndDeregister();
         }
     }
 
