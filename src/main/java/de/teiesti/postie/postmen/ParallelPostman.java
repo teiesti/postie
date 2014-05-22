@@ -24,9 +24,19 @@ public class ParallelPostman<Letter> extends Postman<Letter> {
 	private boolean observeLetterOrder = true;
 
 	/**
-	 * TODO documentation
-	 * @param observeLetterOrder
-	 * @return
+	 * Controls weather this {@link ParallelPostman} should observe the {@link Letter} order. If this option is
+	 * enabled, this {@link ParallelPostman} will not submit jobs for the next {@link Letter} before the current
+	 * {@link Letter} was fully processed. This guarantees that no {@link Letter} overtake another.<br>
+	 * <br>
+	 * It is possible to change this option at any time but jobs that have already been submitted will not be revoked.
+	 * Therefore switching from the unobserved mode to the observed mode may needs some time to take effect. This
+	 * method does only guarantee that {@link Letter}s that have not been yet submitted by the opposite side will be
+	 * processed in the correct order. Anything else happens by chance. Switching from observed to unobserved mode
+	 * will take effect immediately.
+	 *
+	 * @param observeLetterOrder weather the {@link Letter} order should be observed
+	 *
+	 * @return this {@link Postman}
 	 */
 	public Postman<Letter> observeLetterOrder(boolean observeLetterOrder) {
 		this.observeLetterOrder = observeLetterOrder;
@@ -34,9 +44,14 @@ public class ParallelPostman<Letter> extends Postman<Letter> {
 	}
 
 	/**
-	 * TODO documentation
-	 * @param executorService
-	 * @return
+	 * Sets the {@link ExecutorService} this {@link Postman} uses. If this method was never called, an
+	 * {@link Executors#newCachedThreadPool()} is used by default.
+	 *
+	 * @param executorService the {@link ExecutorService} to use
+	 *
+	 * @return this {@link Postman}
+	 *
+	 * @throws java.lang.IllegalArgumentException if the {@link ExecutorService} is {@code null}
 	 */
 	public Postman<Letter> setExecutorService(ExecutorService executorService) {
 		if (executorService == null)
@@ -69,6 +84,15 @@ public class ParallelPostman<Letter> extends Postman<Letter> {
         return this;
     }
 
+	/**
+	 * Reports to any {@link Recipient} that the last {@link Letter} was delivered in parallel. This method creates a
+	 * {@link Runnable} for each {@link Recipient} and submits it to the {@link ExecutorService}. Before it waits until
+	 * any {@link Letter} was processed for any {@link Recipient}. This method does not return before the last
+	 * {@link Recipient#acceptedLast(Postman)} has returned.
+	 *
+	 * @return this {@link Postman}
+	 */
+	@Override
     protected Postman<Letter> reportLast() {
         phaser.arriveAndAwaitAdvance();
 
