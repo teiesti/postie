@@ -16,7 +16,13 @@ public interface Recipient<Letter> {
 	 */
 	public void accept(Letter letter, Postman from);
 
-    // TODO documentation
+	/**
+	 * Indicates that a given {@link Postman} delivered the last {@link Letter} to this {@link Recipient}. This
+	 * method is called by a {@link Postman} that is stopping. This method gives the last possibility to send a
+	 * {@link Letter}. Otherwise this method can be use to perform a cleanup.
+	 *
+	 * @param from the {@link Postman} that is stopping
+	 */
     public void acceptedLast(Postman from);
 
 }
