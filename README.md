@@ -34,7 +34,7 @@ Version history
 
 - `1.0.0` First stable release. No more major API changes.
 - `0.4.0` Some kind of *multiplexing* to support different message types across one Postman.
-- `0.3.0` Add *Office*, a class that handles ServerSockets to spawn Postmen.
+- `0.3.0` Add *Office*, a class that handles ServerSockets to spawn Postmen. Merge *ParallelPostman* and *SemiParallelPostman*.
 
 ### Current version
 
