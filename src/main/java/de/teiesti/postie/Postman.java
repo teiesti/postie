@@ -110,15 +110,18 @@ public abstract class Postman<Letter> implements Cloneable {
 	/**
 	 * Starts this {@link Postman}. This will start two {@link Thread}s: one that delivers the incoming {@link
 	 * Letter}s to any registered {@link Recipient} and one that sends the outgoing messages through the {@link Socket}.
+	 * If this {@link Postman} cannot start for some reason, this method throws an {@link IllegalStateException}.
 	 *
 	 * @return this {@link Postman}
+	 *
+	 * @throws IllegalArgumentException if this {@link Postman} cannot start because it is already running,
+	 * not bound to a {@link Socket} or bound to {@link Socket} was was already closed
 	 */
 	public synchronized final Postman start() {
-		// TODO add javadoc for the IllegalStateExceptions
 		if (isRunning())
 			throw new IllegalStateException("cannot start because this postman is already running");
 		if (socket == null)
-			throw new IllegalStateException("cannot start because this postman was bound to no socket");
+			throw new IllegalStateException("cannot start because this postman not bound to a socket");
 		if (socket.isClosed())
 			throw new IllegalStateException("cannot start because bound socket is already closed");
 
