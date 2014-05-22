@@ -7,7 +7,7 @@ public class SemiParallelPostmanTest extends PostmanTest {
 
     @Override
     public <Letter> Postman<Letter> createPostman() {
-        return new SemiParallelPostman<>();
+        return new ParallelPostman<>();
     }
 
 

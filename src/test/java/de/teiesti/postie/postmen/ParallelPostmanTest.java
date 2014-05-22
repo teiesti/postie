@@ -16,12 +16,12 @@ public class ParallelPostmanTest extends PostmanTest {
 
 	@Override
 	public <Letter> Postman<Letter> createPostman() {
-		return new ParallelPostman<>();
+		return new ParallelPostman<Letter>().observeLetterOrder(false);
 	}
 
 	@Test
 	@Override
-	// The ParallelPostman does not guarantee any order. Therefore we must change this test.
+	// The unordered ParallelPostman does not guarantee any order. Therefore we must change this test.
 	public void multiLetterSendTest() throws InterruptedException {
 		setupStart();
 
