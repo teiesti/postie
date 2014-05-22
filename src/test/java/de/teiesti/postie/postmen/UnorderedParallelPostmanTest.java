@@ -12,7 +12,7 @@ import java.util.Set;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ParallelPostmanTest extends PostmanTest {
+public class UnorderedParallelPostmanTest extends PostmanTest {
 
 	@Override
 	public <Letter> Postman<Letter> createPostman() {
