@@ -96,7 +96,7 @@ public abstract class Postman<Letter> implements Cloneable {
 
 	/**
 	 * Makes this {@link Postman} to use the given {@link Serializer}. A given {@link Serializer} will override a
-	 * previously given one. A {@link Postman} can use one {@link Serializer} at once. It is not possible to change
+	 * previously given one. A {@link Postman} can only use one {@link Serializer} at once. It is not possible to change
 	 * the {@link Serializer} as long as this {@link Postman} is running. In this case this method throws a
 	 * {@link IllegalStateException}.
 	 *
