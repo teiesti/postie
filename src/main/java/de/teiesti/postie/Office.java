@@ -67,7 +67,7 @@ public class Office {
 	 * behaves undefined. Please be aware that the correct setup of a given {@link Postman} is not validated since
 	 * the {@link Office} was started and accepted a connection.<br>
 	 * <br>
-	 * This method cannot be called with {@link null} as parameter or if this {@link Postman} is running. In these
+	 * This method cannot be called with {@code null} as parameter or if this {@link Postman} is running. In these
 	 * cases adequate exceptions are thrown.
 	 *
 	 * @param blueprint the {@link Postman} to use as blueprint
