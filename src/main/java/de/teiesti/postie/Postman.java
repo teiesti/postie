@@ -126,7 +126,8 @@ public abstract class Postman<Letter> implements Cloneable {
 	 * @return this {@link Postman}
 	 *
 	 * @throws IllegalArgumentException if this {@link Postman} cannot start because it is already running,
-	 * not bound to a {@link Socket} or bound to {@link Socket} was was already closed
+	 * not bound to a {@link Socket} or bound to {@link Socket} was was already closed or does not use a {@link
+	 * Serializer}
 	 */
 	public synchronized final Postman start() {
 		if (isRunning())
@@ -135,6 +136,8 @@ public abstract class Postman<Letter> implements Cloneable {
 			throw new IllegalStateException("cannot start because this postman not bound to a socket");
 		if (socket.isClosed())
 			throw new IllegalStateException("cannot start because bound socket is already closed");
+		if (serializer == null)
+			throw new IllegalArgumentException("cannot start because no serializer was configured (used)")
 
 		sender = new Sender();
 		receiver = new Receiver();
