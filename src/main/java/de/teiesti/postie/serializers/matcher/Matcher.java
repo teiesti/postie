@@ -49,4 +49,11 @@ public interface Matcher {
 	 */
 	public void reset();
 
+	/**
+	 * TODO documentation
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
+	public Matcher clone() throws CloneNotSupportedException;
+
 }

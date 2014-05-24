@@ -3,6 +3,7 @@ package de.teiesti.postie.serializers;
 import de.teiesti.postie.Serializer;
 import de.teiesti.postie.serializers.matcher.KnuthMorrisPrattMatcher;
 import de.teiesti.postie.serializers.matcher.Matcher;
+import org.pmw.tinylog.Logger;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -17,14 +18,14 @@ import java.io.Writer;
  */
 public abstract class AbstractSerializer<Letter> implements Serializer<Letter> {
 
-	private Matcher matcher;
+	private Matcher blueprint;
 
 	/**
 	 * Creates a new {@link AbstractSerializer}.
 	 */
 	public AbstractSerializer() {
-		matcher = new KnuthMorrisPrattMatcher();
-		matcher.initialize(separator());
+		blueprint = new KnuthMorrisPrattMatcher();
+		blueprint.initialize(separator());
 	}
 
 	@Override
@@ -37,6 +38,14 @@ public abstract class AbstractSerializer<Letter> implements Serializer<Letter> {
 	@Override
 	public Letter decodeNext(Reader reader) throws IOException {
 		StringBuilder rawLetter = new StringBuilder();
+
+		Matcher matcher = null;
+		try {
+			matcher = blueprint.clone();
+		} catch (CloneNotSupportedException e) {
+			Logger.error(e);
+			System.exit(1);
+		}
 
 		for (int c = reader.read(); c != -1; c = reader.read()) {
 			rawLetter.append((char) c);

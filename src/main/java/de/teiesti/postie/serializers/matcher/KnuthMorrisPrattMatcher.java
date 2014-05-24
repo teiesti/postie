@@ -6,7 +6,7 @@ package de.teiesti.postie.serializers.matcher;
  * need more space than {@code O(n)} independent how often {@link #feed(char)} is called. Any method excepts
  * {@link #initialize(String)} works in {@code O(1)}; {@link #initialize(String)} works in {@code O(n)}.
  */
-public class KnuthMorrisPrattMatcher implements Matcher {
+public class KnuthMorrisPrattMatcher implements Matcher, Cloneable {
 
 	private char[] pattern;
 	private int patternPos = 0;
@@ -58,6 +58,16 @@ public class KnuthMorrisPrattMatcher implements Matcher {
 	@Override
 	public void reset() {
 		patternPos = 0;
+	}
+
+	/**
+	 * TODO documentation
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
+	@Override
+	public KnuthMorrisPrattMatcher clone() throws CloneNotSupportedException {
+		return (KnuthMorrisPrattMatcher) super.clone();
 	}
 
 }
