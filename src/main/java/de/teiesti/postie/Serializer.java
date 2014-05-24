@@ -5,7 +5,8 @@ import java.io.Reader;
 import java.io.Writer;
 
 /**
- * A {@link Serializer} encodes {@link Letter} into a {@link String} or vice versa.
+ * A {@link Serializer} encodes {@link Letter} into a {@link String} or vice versa. Any implementation should be
+ * thread-safe. It should not save any state.
  *
  * @param <Letter> type of the letters
  */

@@ -74,7 +74,6 @@ public class OfficeTest {
 		results.add(3);
 
 		for (int i = 0; i < 3; i++)
-			// TODO spinlock to await the threads....
 			assertThat(results.remove(aliceMailbox.receive()), is(true));
 
 		assertThat(results.isEmpty(), is(true));
