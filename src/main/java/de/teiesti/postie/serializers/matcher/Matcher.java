@@ -50,9 +50,19 @@ public interface Matcher {
 	public void reset();
 
 	/**
-	 * TODO documentation
-	 * @return
-	 * @throws CloneNotSupportedException
+	 * Clones this {@link Matcher} due to {@link Object#clone()} and {@link Cloneable}. This method should return a
+	 * clone which is completely independent from its original. This does not means that no data is shared but that a
+	 * modification does not affect the other {@link Matcher}.<br>
+	 * <br>
+	 * Depending on the implementation it might be sufficient to call {@link Object#clone()}. In this case
+	 * {@link Cloneable} must be implemented to prevent throwing a {@link CloneNotSupportedException}. This interface
+	 * does not extend {@link Cloneable} because some programmer should think, if cloning is really possible before she
+	 * implements this method. So, this interface does not require that cloning is possible but it is highly
+	 * recommended to support it.
+	 *
+ 	 * @return a clone of this {@link Matcher}
+	 *
+	 * @throws CloneNotSupportedException if cloning is not supported
 	 */
 	public Matcher clone() throws CloneNotSupportedException;
 

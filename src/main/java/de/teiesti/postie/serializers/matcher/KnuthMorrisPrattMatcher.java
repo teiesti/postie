@@ -60,11 +60,6 @@ public class KnuthMorrisPrattMatcher implements Matcher, Cloneable {
 		patternPos = 0;
 	}
 
-	/**
-	 * TODO documentation
-	 * @return
-	 * @throws CloneNotSupportedException
-	 */
 	@Override
 	public KnuthMorrisPrattMatcher clone() throws CloneNotSupportedException {
 		return (KnuthMorrisPrattMatcher) super.clone();
