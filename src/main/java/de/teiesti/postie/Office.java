@@ -18,6 +18,17 @@ public class Office {
 
 	private Set<Postman> postmen = Collections.synchronizedSet(new HashSet<Postman>());
 
+	private final Recipient postmanHelper = new Recipient() {
+		@Override
+		public void accept(Object o, Postman from) {
+		}
+
+		@Override
+		public void acceptedLast(Postman from) {
+			postmen.remove(from);
+		}
+	};
+
 	private Thread acceptor;
 
 	public final synchronized Office bind(ServerSocket serverSocket) {
@@ -31,7 +42,7 @@ public class Office {
 	public final synchronized Office spawn(Postman blueprint) {
         // FIXME check consistency
 
-        this.blueprint = blueprint;
+        this.blueprint = blueprint.register(postmanHelper);
 
 		return this;
 	}
@@ -59,8 +70,13 @@ public class Office {
         acceptor = null;
 
         if (stopPostmen)
-            for (Postman p : postmen)
-                p.stop();
+			synchronized (postmen) {
+				for (Postman p : postmen) {
+					p.unregister(postmanHelper);
+					p.stop();
+				}
+				postmen.clear();
+			}
 
         return this;
     }
@@ -79,18 +95,6 @@ public class Office {
 				try {
 					socket = serverSocket.accept();
 					postman = blueprint.clone().bind(socket);
-
-                    postman.register(new Recipient() {
-                        @Override
-                        public void accept(Object o, Postman from) {
-                        }
-
-                        @Override
-                        public void acceptedLast(Postman from) {
-                            postmen.remove(from);
-                        }
-                    });
-
 					postmen.add(postman);
                     postman.start();
 				} catch (IOException e) {
