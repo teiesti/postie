@@ -137,7 +137,7 @@ public abstract class Postman<Letter> implements Cloneable {
 		if (socket.isClosed())
 			throw new IllegalStateException("cannot start because bound socket is already closed");
 		if (serializer == null)
-			throw new IllegalArgumentException("cannot start because no serializer was configured (used)")
+			throw new IllegalArgumentException("cannot start because no serializer was configured (used)");
 
 		sender = new Sender();
 		receiver = new Receiver();
