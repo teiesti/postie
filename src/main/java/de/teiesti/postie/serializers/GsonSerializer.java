@@ -10,7 +10,7 @@ import com.google.gson.Gson;
  */
 public class GsonSerializer<Letter> extends AbstractSerializer<Letter> {
 
-	private Gson gson = new Gson();
+	private static Gson gson = new Gson();
 	private Class<Letter> letterClass;
 
 	/**
