@@ -12,7 +12,7 @@ Just add the following dependency to Your `pom.xml`:
 <dependency>
 	<groupId>de.teiesti.postie</groupId>
 	<artifactId>postie</artifactId>
-	<version>0.2.0</version>
+	<version>0.3.0</version>
 </dependency>
 ```
 
@@ -34,12 +34,12 @@ Version history
 
 - `1.0.0` First stable release. No more major API changes.
 - `0.4.0` Some kind of *multiplexing* to support different message types across one Postman.
-- `0.3.0` Add *Office*, a class that handles ServerSockets to spawn Postmen. Merge *ParallelPostman* and *SemiParallelPostman*.
 
 ### Current version
 
-- `0.2.0` *Postman* introduced: A *Mailbox* is now a simple *Receiver*. Pluggable serialization added.
+- `0.3.0` *Office* added, a class that handles ServerSockets to spawn Postmen. *ParallelPostman* and *SemiParallelPostman* merged. Cloning of Postman fully reworked to resolve some bugs.
 
 ### Previous versions
 
+- `0.2.0` *Postman* introduced: A *Mailbox* is now a simple *Receiver*. Pluggable serialization added.
 - `0.1.0` Initial approach: *Mailbox* is the central class that handles messages.
