@@ -97,7 +97,7 @@ public class Office {
 					postman = blueprint.clone().bind(socket);
 					postmen.add(postman);
                     postman.start();
-				} catch (IOException e) {
+				} catch (IOException | CloneNotSupportedException e) {
 					if (e instanceof SocketException)
                         break;
 

@@ -27,33 +27,44 @@ public abstract class Postman<Letter> implements Cloneable {
 
 	private Socket socket;
 	private Serializer<Letter> serializer;
-	protected final Set<Recipient<Letter>> recipients = new CopyOnWriteArraySet<>();
+	protected Set<Recipient<Letter>> recipients = new CopyOnWriteArraySet<>();
 
-	private final BlockingQueue<Letter> outbox = new LinkedBlockingDeque<>();
+	private BlockingQueue<Letter> outbox = new LinkedBlockingDeque<>();
 
 	private Thread sender;
 	private Thread receiver;
 
 	/**
-	 * Clones this {@link Postman}. Cloning is not possible if this {@link Postman} is running. In this case this
-	 * method throws a {@link IllegalStateException}.
+	 * Clones this {@link Postman}. Cloning a {@link Postman} works as follows:
+	 * <ul>
+	 *     <li>The {@link Socket} this {@link Postman} was bound to can not be reused, because it is not
+	 *     thread-safe, or copied, because it does not provide the necessary information. Therefore it is set to
+	 *     {@code null}.</li>
+	 *     <li>The {@link Serializer} can be reused because it is thread-safe and does not save any state. So the
+	 *     reference is copied.</li>
+	 *     <li>The registered {@link Recipient}s should not be shared across different {@link Postman} automatically.
+	 *     Therefore their {@link Set} is copied but the {@link Recipient}s stay the same.
+	 *     <li>Because a {@link Socket} is missing, no {@link Thread} can be started.</li>
+	 * </ul>
+	 * Summary: To obtain a running {@link Postman} from a clone, you must at least - depending on the original -
+	 * call {@link #bind(Socket)} and {@link #start()}.
 	 *
-	 * @return a clone of this {@link Postman}
-	 *
-	 * @throws IllegalArgumentException if this {@link Postman} is running
+	 * @throws CloneNotSupportedException not thrown
 	 */
 	@Override
-	public synchronized Postman clone() {
-		if (this.isRunning())
-			throw new IllegalStateException("cannot clone because this postman is running");
+	public Postman clone() throws CloneNotSupportedException {
+		Postman result = (Postman) super.clone();
 
-		Postman result = null;
-		try {
-			result = (Postman) super.clone();
-		} catch (CloneNotSupportedException e) {
-			Logger.error(e);
-			System.exit(1);
-		}
+		// fields that won't be copied and must be initialized for new
+		socket = null;
+		sender = null;
+		receiver = null;
+
+		// fields that will be copied in deep
+		recipients = new CopyOnWriteArraySet<>(recipients);
+		outbox = new LinkedBlockingDeque<>(outbox);
+
+		// don't wonder: the reference to serializer was copied during super.clone()
 
 		return result;
 	}
