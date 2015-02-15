@@ -226,7 +226,6 @@ public abstract class Postman<Letter> implements Cloneable {
 	 */
 	protected abstract Postman deliver(Letter letter);
 
-
 	/**
 	 * This method should report to any {@link Recipient} that a connection was established and the {@link Postman}
 	 * starts delivering {@link Letter}s now. In order to do so, it should call {@link Recipient#noticeStart(Postman)}
