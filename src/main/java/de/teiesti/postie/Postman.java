@@ -227,25 +227,31 @@ public abstract class Postman<Letter> implements Cloneable {
 	protected abstract Postman deliver(Letter letter);
 
 
-	// TODO write comment
-	protected abstract Postman reportStart();
-
-	// TODO write comment
-	protected abstract Postman reportStop();
-
 	/**
-	 * TODO delete
-	 * This method should report to any {@link Recipient} that the last {@link Letter} was delivered. In order to do
-	 * that it should call {@link Recipient#acceptedLast} for any registered recipient with this {@link Postman} as
-	 * argument. This method is called from the {@link Thread} that receives {@link Letter}s from the {@link Socket}
-	 * after the last {@link Letter} was received but before it closes the sending {@link Thread}. This method should
-	 * not return before any {@link Recipient#acceptedLast} has returned to give these actions the possibility to send
-	 * a {@link Letter}. (Note: If you stop this {@link Postman} with {@link Postman#stop} the sender has closed
-	 * before this method is called.)
+	 * This method should report to any {@link Recipient} that a connection was established and the {@link Postman}
+	 * starts delivering {@link Letter}s now. In order to do so, it should call {@link Recipient#noticeStart(Postman)}
+	 * for any registered recipient with this {@link Postman} as argument. This method is called from the
+	 * {@link Thread} that receives {@link Letter}s. The {@link Postman} will not deliver a {@link Letter} to any
+	 * {@link Recipient} before this method returns. To give the {@link Recipient}s the possibility to perform a final
+	 * setup, this method should not complete before any {@link Recipient#noticeStart(Postman)} has also completed.
 	 *
 	 * @return this {@link Postman}
 	 */
-    //protected abstract Postman reportLast();
+	protected abstract Postman reportStart();
+
+	/**
+	 * This method should report to any {@link Recipient} that the last {@link Letter} was delivered and the connection
+	 * will close. In order to do that, it should call {@link Recipient#noticeStop} for any registered recipient with
+	 * this {@link Postman} as argument. This method is called from the {@link Thread} that receives {@link Letter}s
+	 * from the {@link Socket} once the last {@link Letter} was received and delivered to the {@link Recipient}s. If the
+	 * opposite site closes the connection normally, this method is called before the sending {@link Thread} is stopped.
+	 * Therefore, this method should not return before any {@link Recipient#noticeStop(Postman)} was completed to give
+	 * these actions the possibility to send a {@link Letter}. If the connection was terminated or if we close the
+	 * connection ({@link #stop} was called), the sender was closed before this method is called.
+	 *
+	 * @return this {@link Postman}
+	 */
+	protected abstract Postman reportStop();
 
 	/**
 	 * Stops this {@link Postman}. If this {@link Postman} is not running yet, this method throws a
@@ -364,6 +370,9 @@ public abstract class Postman<Letter> implements Cloneable {
 			// open input reader
 			BufferedReader in = openInput();
 
+			// report recipients that the connection was established and the postman will start delivering letters now
+			reportStart();
+
 			// receive letters
 			try {
 				Letter letter = serializer.decodeNext(in);
@@ -376,8 +385,8 @@ public abstract class Postman<Letter> implements Cloneable {
 				System.exit(1);
 			}
 
-            // report recipients that the last letter was delivered
-            reportLast();
+            // report to recipients that the last letter was delivered and the connection will close now
+            reportStop();
 
 			// close sender: receiving EOF shows that the opposite site wants to close the connection
 			sender.interrupt();
