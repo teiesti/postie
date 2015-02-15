@@ -94,7 +94,7 @@ public class ParallelPostman<Letter> extends Postman<Letter> {
 	 */
 	@Override
 	protected Postman<Letter> reportStart() {
-		phaser.arriveAndAwaitAdvance();	// TODO needed?
+		// 'phaser.arriveAndAwaitAdvance();' is not needed here, because nothing happened in parallel so far.
 
 		for (Recipient<Letter> r : recipients) {
 			phaser.register();
