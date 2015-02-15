@@ -12,7 +12,7 @@ Just add the following dependency to Your `pom.xml`:
 <dependency>
 	<groupId>de.teiesti.postie</groupId>
 	<artifactId>postie</artifactId>
-	<version>0.3.0</version>
+	<version>0.4.0</version>
 </dependency>
 ```
 
@@ -33,13 +33,14 @@ Version history
 ### Upcoming versions
 
 - `1.0.0` First stable release. No more major API changes.
-- `0.4.0` Some kind of *multiplexing* to support different message types across one Postman.
+- `0.5.0` Some kind of *multiplexing* to support different message types across one Postman.
 
 ### Current version
 
-- `0.3.0` *Office* added, a class that handles ServerSockets to spawn Postmen. *ParallelPostman* and *SemiParallelPostman* merged. Cloning of Postman fully reworked to resolve some bugs.
+- `0.4.0` *Recipient* reworked: It can now notice start and stop of a connection. Unfortuneatly, the changes are not backward compatible. You need to adapt any class that implements *Recipient* by renaming `acceptedLast()` to `noticeStop()` and implementing the new method `noticeStart()`.
 
 ### Previous versions
 
+- `0.3.0` *Office* added, a class that handles ServerSockets to spawn Postmen. *ParallelPostman* and *SemiParallelPostman* merged. Cloning of Postman fully reworked to resolve some bugs.
 - `0.2.0` *Postman* introduced: A *Mailbox* is now a simple *Receiver*. Pluggable serialization added.
 - `0.1.0` Initial approach: *Mailbox* is the central class that handles messages.
