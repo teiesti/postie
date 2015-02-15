@@ -85,20 +85,42 @@ public class ParallelPostman<Letter> extends Postman<Letter> {
     }
 
 	/**
-	 * Reports to any {@link Recipient} that the last {@link Letter} was delivered in parallel. This method creates a
-	 * {@link Runnable} for each {@link Recipient} and submits it to the {@link ExecutorService}. Before it waits until
-	 * any {@link Letter} was processed for any {@link Recipient}. This method does not return before the last
-	 * {@link Recipient#acceptedLast(Postman)} has returned.
+	 * Reports parallel to any {@link Recipient} that a connection was established and the {@link Postman} will start
+	 * delivering {@link Letter}s now. This method creates a {@link Runnable} for each {@link Recipient} and submits it
+	 * to the {@link ExecutorService}. This method does not return before the last
+	 * {@link Recipient#noticeStart(Postman)} has returned.
 	 *
 	 * @return this {@link Postman}
 	 */
 	@Override
-    protected Postman<Letter> reportLast() {
+	protected Postman<Letter> reportStart() {
+		phaser.arriveAndAwaitAdvance();	// TODO needed?
+
+		for (Recipient<Letter> r : recipients) {
+			phaser.register();
+			es.submit(new StartReporter(r, this));
+		}
+
+		phaser.arriveAndAwaitAdvance();
+
+		return this;
+	}
+
+	/**
+	 * Reports parallel to any {@link Recipient} that the last {@link Letter} was delivered and the connection will
+	 * close now. This method creates a {@link Runnable} for each {@link Recipient} and submits it to the
+	 * {@link ExecutorService}. Before it waits until any {@link Letter} was processed for any {@link Recipient}.
+	 * This method does not return before the last {@link Recipient#noticeStop(Postman)} has returned.
+	 *
+	 * @return this {@link Postman}
+	 */
+	@Override
+    protected Postman<Letter> reportStop() {
         phaser.arriveAndAwaitAdvance();
 
 		for (Recipient<Letter> r : recipients) {
 			phaser.register();
-			es.submit(new LastReporter(r, this));
+			es.submit(new StopReporter(r, this));
 		}
 
 		phaser.arriveAndAwaitAdvance();
@@ -126,19 +148,37 @@ public class ParallelPostman<Letter> extends Postman<Letter> {
 
     }
 
-	private class LastReporter implements Runnable {
+	private class StartReporter implements Runnable {
 
 		private Recipient<Letter> recipient;
 		private Postman postman;
 
-		public LastReporter(Recipient<Letter> recipient, Postman postman) {
+		public StartReporter(Recipient<Letter> recipient, Postman postman) {
 			this.recipient = recipient;
 			this.postman = postman;
 		}
 
 		@Override
 		public void run() {
-			recipient.acceptedLast(postman);
+			recipient.noticeStart(postman);
+			phaser.arriveAndDeregister();
+		}
+
+	}
+
+	private class StopReporter implements Runnable {
+
+		private Recipient<Letter> recipient;
+		private Postman postman;
+
+		public StopReporter(Recipient<Letter> recipient, Postman postman) {
+			this.recipient = recipient;
+			this.postman = postman;
+		}
+
+		@Override
+		public void run() {
+			recipient.noticeStop(postman);
 			phaser.arriveAndDeregister();
 		}
 
