@@ -16,23 +16,25 @@ public interface Recipient<Letter> {
 	 */
 	public void accept(Letter letter, Postman from);
 
-	// TODO comment
+	/**
+	 * Indicates that a given {@link Postman} begins to deliver {@link Letter}s to this {@link Recipient}. This method
+	 * is called by a {@link Postman} directly after a connection was established. If you register this {@Recipient} to
+	 * a {@link Postman} that already delivers {@link Letter}s to its {@link Recipient}s, this method will no be called.
+	 * No {@link Letter} will be delivered before this methods returns.
+	 *
+	 * @param from the {@link Postman} that is starting
+	 */
 	public void noticeStart(Postman from);
 
-	// TODO comment
-	public void noticeStop(Postman from);
-
 	/**
-	 * FIXME delete
-	 * Indicates that a given {@link Postman} delivered the last {@link Letter} to this {@link Recipient}. This
-	 * method is called by a {@link Postman} that is stopping. If the connection was ck
-	 *
-	 *
-	 * In case, the connection is closed by the opposite side,
-	 * this method gives the last possibility to send a {@link Letter}. Otherwise this method can be use to perform a cleanup.
+	 * Indicates that a given {@link Postman} has delivered the last {@link Letter} to this {@link Recipient}. This
+	 * method is called by a {@link Postman} directly before it closes the connections. In case that the opposite site
+	 * closes the connection normally, this method gives the last possibility to send a {@link Letter}. If the
+	 * connection was terminated or if {@link Postman#stop()} was called, this possibility does not exist. You may use
+	 * this method to perform a cleanup.
 	 *
 	 * @param from the {@link Postman} that is stopping
 	 */
-    //public void acceptedLast(Postman from);
+	public void noticeStop(Postman from);
 
 }
