@@ -226,7 +226,15 @@ public abstract class Postman<Letter> implements Cloneable {
 	 */
 	protected abstract Postman deliver(Letter letter);
 
+
+	// TODO write comment
+	protected abstract Postman reportStart();
+
+	// TODO write comment
+	protected abstract Postman reportStop();
+
 	/**
+	 * TODO delete
 	 * This method should report to any {@link Recipient} that the last {@link Letter} was delivered. In order to do
 	 * that it should call {@link Recipient#acceptedLast} for any registered recipient with this {@link Postman} as
 	 * argument. This method is called from the {@link Thread} that receives {@link Letter}s from the {@link Socket}
@@ -237,7 +245,7 @@ public abstract class Postman<Letter> implements Cloneable {
 	 *
 	 * @return this {@link Postman}
 	 */
-    protected abstract Postman reportLast();
+    //protected abstract Postman reportLast();
 
 	/**
 	 * Stops this {@link Postman}. If this {@link Postman} is not running yet, this method throws a
