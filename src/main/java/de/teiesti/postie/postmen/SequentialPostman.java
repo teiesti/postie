@@ -31,16 +31,31 @@ public class SequentialPostman<Letter> extends Postman<Letter> {
     }
 
 	/**
-	 * Reports to any {@link Recipient} that the last {@link Letter} was delivered. This method does not start a new
-	 * {@link Thread}.
+	 * Reports to any {@link Recipient} that a connection was established and the {@link Postman} starts delivering
+	 * {@link Letter}s now. This method does not start a new {@link Thread}.
 	 *
 	 * @return this {@link Postman}
 	 */
-    protected Postman<Letter> reportLast() {
-        for (Recipient r : recipients)
-            r.acceptedLast(this);
+	@Override
+	protected Postman reportStart() {
+		for (Recipient r : recipients)
+			r.noticeStart(this);
 
-        return this;
-    }
+		return this;
+	}
+
+	/**
+	 * Reports to any {@link Recipient} that the last {@link Letter} was delivered and the connection will close.
+	 * This method does not start a new {@link Thread}.
+	 *
+	 * @return this {@link Postman}
+	 */
+	@Override
+	protected Postman reportStop() {
+		for (Recipient r : recipients)
+			r.noticeStop(this);
+
+		return this;
+	}
 
 }
