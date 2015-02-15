@@ -30,11 +30,13 @@ public class Office {
 
 	private final Recipient postmanHelper = new Recipient() {
 		@Override
-		public void accept(Object o, Postman from) {
-		}
+		public void accept(Object o, Postman from) { /* nothing to do */ }
 
 		@Override
-		public void acceptedLast(Postman from) {
+		public void noticeStart(Postman from) { /* nothing to do */ }
+
+		@Override
+		public void noticeStop(Postman from) {
 			postmen.remove(from);
 		}
 	};
