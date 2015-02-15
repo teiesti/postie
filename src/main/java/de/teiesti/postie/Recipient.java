@@ -18,9 +18,9 @@ public interface Recipient<Letter> {
 
 	/**
 	 * Indicates that a given {@link Postman} begins to deliver {@link Letter}s to this {@link Recipient}. This method
-	 * is called by a {@link Postman} directly after a connection was established. If you register this {@Recipient} to
-	 * a {@link Postman} that already delivers {@link Letter}s to its {@link Recipient}s, this method will no be called.
-	 * No {@link Letter} will be delivered before this methods returns.
+	 * is called by a {@link Postman} directly after a connection was established. If you register this
+	 * {@link Recipient} to a {@link Postman} that already delivers {@link Letter}s to its {@link Recipient}s, this
+	 * method will no be called. No {@link Letter} will be delivered before this methods returns.
 	 *
 	 * @param from the {@link Postman} that is starting
 	 */

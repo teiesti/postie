@@ -24,8 +24,9 @@ public class SequentialPostman<Letter> extends Postman<Letter> {
 	 */
     @Override
     protected Postman<Letter> deliver(Letter letter) {
-        for (Recipient r : recipients)
-            r.accept(letter, this);
+        for (Recipient<Letter> r : recipients) {
+			r.accept(letter, this);
+		}
 
         return this;
     }
@@ -38,8 +39,9 @@ public class SequentialPostman<Letter> extends Postman<Letter> {
 	 */
 	@Override
 	protected Postman reportStart() {
-		for (Recipient r : recipients)
+		for (Recipient<Letter> r : recipients) {
 			r.noticeStart(this);
+		}
 
 		return this;
 	}
@@ -52,7 +54,7 @@ public class SequentialPostman<Letter> extends Postman<Letter> {
 	 */
 	@Override
 	protected Postman reportStop() {
-		for (Recipient r : recipients)
+		for (Recipient<Letter> r : recipients)
 			r.noticeStop(this);
 
 		return this;

@@ -158,7 +158,7 @@ public abstract class Postman<Letter> implements Cloneable {
 	 *
 	 * @throws IllegalArgumentException if {@code recipient} is {@code null}
 	 */
-	public final Postman register(Recipient recipient) {
+	public final Postman register(Recipient<Letter> recipient) {
 		if (recipient == null)
 			throw new IllegalArgumentException("recipient == null");
 

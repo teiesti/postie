@@ -31,7 +31,7 @@ public class Mailbox<Letter> extends SimpleRecipient<Letter> {
 
 	/**
 	 * Returns a {@link Letter} that was put into this {@link Mailbox} with {@link #accept(Object,
-	 * Postman)}. A {@link Mailbox} works according to the FIFO principle: {@link #receive()} will return the {@link
+	 * Postman)}. A {@link Mailbox} works according to the FIFO principle: This method will return the {@link
 	 * Letter} that was accepted the longest time ago. Receiving a {@link Letter} from a {@link Mailbox} will remove
 	 * it. A {@link Letter} can only received once. If this {@link Mailbox} does not store a {@link Letter} when this
 	 * method is called, it will block until a {@link Letter} was accepted or the blocking {@link Thread} was
