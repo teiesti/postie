@@ -14,7 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
  * @param <Letter> type of the letters
  */
-public class Mailbox<Letter> implements Recipient<Letter> {
+public class Mailbox<Letter> extends SimpleRecipient<Letter> {
 
     private final BlockingQueue<Letter> inbox = new LinkedBlockingQueue<>();
 
@@ -28,15 +28,6 @@ public class Mailbox<Letter> implements Recipient<Letter> {
 	public void accept(Letter letter, Postman postman) {
        inbox.add(letter);
     }
-
-	/**
-	 * Because a {@link Mailbox} does not need to know that the last {@link Letter} was received,
-	 * this method does nothing.
-	 *
-	 * @param from the {@link Postman} that is stopping
-	 */
-	@Override
-	public void acceptedLast(Postman from) { /*nothing to do*/ }
 
 	/**
 	 * Returns a {@link Letter} that was put into this {@link Mailbox} with {@link #accept(Object,
