@@ -272,7 +272,7 @@ public abstract class Postman<Letter> implements Cloneable {
 	 *
 	 * @return this {@link Postman}
 	 *
-	 * @throws IllegalStateException if this {@link Postman} is running
+	 * @throws IllegalStateException if this {@link Postman} is not running
 	 */
 	public synchronized final Postman stop() {
 		if (!isRunning())
